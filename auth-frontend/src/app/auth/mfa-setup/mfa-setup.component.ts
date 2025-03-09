@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-mfa-setup',
@@ -34,10 +35,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class MfaSetupComponent implements OnInit {
   setupForm!: FormGroup;
+  passwordForm!: FormGroup;
   loading = false;
   setupComplete = false;
   setupStep = 1; // 1: Initial setup, 2: Verification, 3: Recovery codes
   qrCodeUrl: string = '';
+  qrCodeData: SafeHtml | null = null;
   secret: string = '';
   recoveryCodes: string[] = [];
   error: string | null = null;
@@ -46,32 +49,42 @@ export class MfaSetupComponent implements OnInit {
     private formBuilder: FormBuilder,
     private mfaService: MfaService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
+    // Form for verification code
     this.setupForm = this.formBuilder.group({
       code: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
     });
 
-    // Start the MFA setup process
-    this.initiateSetup();
+    // Form for password
+    this.passwordForm = this.formBuilder.group({
+      password: ['', [Validators.required]]
+    });
   }
 
-  // Convenience getter for easy access to form fields
+  // Convenience getters for form fields
   get f() { return this.setupForm.controls; }
+  get p() { return this.passwordForm.controls; }
 
   initiateSetup(): void {
+    if (this.passwordForm.invalid) {
+      return;
+    }
+
     this.loading = true;
     this.error = null;
+    
+    const password = this.passwordForm.get('password')?.value;
 
-    // Pass an empty string as password since we're using the updated API endpoint
-    this.mfaService.setupMfa('').subscribe({
+    this.mfaService.setupMfa(password).subscribe({
       next: (response) => {
-        this.qrCodeUrl = response.qr_code;
+        // Safely render the SVG QR code
+        this.qrCodeData = this.sanitizer.bypassSecurityTrustHtml(response.qr_code);
         this.secret = response.secret;
         this.loading = false;
-        this.setupStep = 1;
       },
       error: (error: HttpErrorResponse) => {
         this.error = error.message || 'Failed to set up MFA';

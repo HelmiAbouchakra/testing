@@ -140,10 +140,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendEmailVerificationNotification(): void
     {
+        \Log::info('Sending verification email to: ' . $this->email);
         // Generate a new verification code
         $code = $this->generateVerificationCode();
         
         // Send the notification with the code
-        $this->notify(new VerifyEmailWithCode($code));
+        try {
+            $this->notify(new VerifyEmailWithCode($code));
+            \Log::info('Notification sent successfully');
+    } catch (\Exception $e) {
+        \Log::error('Error sending notification: ' . $e->getMessage());
     }
+}
 }

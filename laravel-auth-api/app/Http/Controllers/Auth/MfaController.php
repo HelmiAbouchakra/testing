@@ -52,10 +52,16 @@ class MfaController extends Controller
     {
         $user = $request->user();
         
+        \Log::info('MFA Setup starting', [
+            'user_id' => $user->id, 
+            'user_email' => $user->email
+        ]);
+        
         // Verify current password before allowing MFA setup
         $request->validate([
             'password' => ['required', function ($attribute, $value, $fail) use ($user) {
                 if (!Hash::check($value, $user->password)) {
+                    \Log::error('MFA Setup: Password validation failed', ['user_id' => $user->id]);
                     $fail('The provided password is incorrect.');
                 }
             }],
@@ -63,7 +69,12 @@ class MfaController extends Controller
         
         // Generate new secret
         $google2fa = new Google2FA();
-        $secret = $google2fa->generateSecretKey();
+        $secret = $google2fa->generateSecretKey(32);
+        
+        \Log::info('MFA Setup: Secret generated', [
+            'user_id' => $user->id,
+            'secret_length' => strlen($secret)
+        ]);
         
         // Save to user
         $user->mfa_secret = $secret;
@@ -71,12 +82,11 @@ class MfaController extends Controller
         $user->mfa_confirmed_at = null;
         $user->save();
         
-        // Generate QR code
-        $qrCodeUrl = $google2fa->getQRCodeUrl(
-            config('app.name'),
-            $user->email,
-            $secret
-        );
+        // Generate QR code with proper otpauth format
+        $qrCodeUrl = 'otpauth://totp/' . rawurlencode(config('app.name') . ':' . $user->email) . 
+            '?secret=' . $secret . 
+            '&issuer=' . rawurlencode(config('app.name')) . 
+            '&algorithm=SHA1&digits=6&period=30';
         
         $renderer = new ImageRenderer(
             new RendererStyle(200),
@@ -85,6 +95,13 @@ class MfaController extends Controller
         
         $writer = new Writer($renderer);
         $qrCodeSvg = $writer->writeString($qrCodeUrl);
+        
+        \Log::info('MFA Setup complete', [
+            'user_id' => $user->id,
+            'secret_generated' => !empty($secret),
+            'qr_code_generated' => !empty($qrCodeSvg),
+            'qr_code_size' => strlen($qrCodeSvg)
+        ]);
         
         return response()->json([
             'secret' => $secret,
@@ -107,9 +124,21 @@ class MfaController extends Controller
             'code' => 'required|string|size:6',
         ]);
         
+        \Log::info('MFA Enable: Verifying code', [
+            'user_id' => $user->id,
+            'has_secret' => !empty($user->mfa_secret),
+            'secret_length' => strlen($user->mfa_secret),
+            'code_length' => strlen($request->code)
+        ]);
+        
         $google2fa = new Google2FA();
         
         if (!$google2fa->verifyKey($user->mfa_secret, $request->code)) {
+            \Log::error('MFA Enable: Invalid verification code', [
+                'user_id' => $user->id,
+                'code_length' => strlen($request->code)
+            ]);
+            
             throw ValidationException::withMessages([
                 'code' => ['The provided code is invalid.'],
             ]);
@@ -119,8 +148,18 @@ class MfaController extends Controller
         $user->mfa_confirmed_at = now();
         $user->save();
         
+        \Log::info('MFA Enable: Successfully enabled', [
+            'user_id' => $user->id,
+            'mfa_enabled' => $user->mfa_enabled,
+            'mfa_confirmed_at' => $user->mfa_confirmed_at
+        ]);
+        
+        // Generate new recovery codes to send back
+        $recoveryCodes = $user->generateRecoveryCodes();
+        
         return response()->json([
             'message' => 'Two-factor authentication has been enabled.',
+            'recovery_codes' => $recoveryCodes
         ]);
     }
 
@@ -166,22 +205,48 @@ class MfaController extends Controller
             'code' => 'required|string',
         ]);
         
-        $authenticator = app(Authenticator::class);
+        $user = $request->user();
         
-        if ($authenticator->verifyGoogle2FA($request->code)) {
-            $authenticator->login();
+        // First check if user has MFA enabled and a secret
+        if (!$user->mfa_enabled || empty($user->mfa_secret)) {
+            \Log::error('MFA Verify: MFA not properly set up', [
+                'user_id' => $user->id,
+                'mfa_enabled' => $user->mfa_enabled,
+                'has_secret' => !empty($user->mfa_secret)
+            ]);
             
-            // Create a new session
-            $request->session()->regenerate();
+            throw ValidationException::withMessages([
+                'code' => ['Two-factor authentication is not properly set up.'],
+            ]);
+        }
+        
+        // Direct verification using Google2FA
+        $google2fa = new Google2FA();
+        
+        // Debug info
+        \Log::info('Verifying MFA code', [
+            'user_id' => $user->id,
+            'has_secret' => !empty($user->mfa_secret),
+            'secret_length' => strlen($user->mfa_secret),
+            'code_length' => strlen($request->code),
+        ]);
+        
+        // Directly verify the code against the user's secret
+        if ($google2fa->verifyKey($user->mfa_secret, $request->code)) {
+            // Success! Mark as verified in session
+            session(['mfa_verified' => true]);
+            
+            \Log::info('MFA Verify: Successful verification', [
+                'user_id' => $user->id
+            ]);
             
             return response()->json([
                 'message' => 'Two-factor authentication successful.',
-                'user' => $request->user()
+                'user' => $user
             ]);
         }
         
         // Check if using a recovery code
-        $user = $request->user();
         $recoveryCodes = $user->mfa_recovery_codes ?? [];
         
         if (in_array($request->code, $recoveryCodes)) {
@@ -193,8 +258,13 @@ class MfaController extends Controller
             $user->mfa_recovery_codes = $recoveryCodes;
             $user->save();
             
-            // Create a new session
-            $request->session()->regenerate();
+            \Log::info('MFA Verify: Successful recovery code verification', [
+                'user_id' => $user->id,
+                'recovery_codes_remaining' => count($recoveryCodes)
+            ]);
+            
+            // Mark as verified in session
+            session(['mfa_verified' => true]);
             
             return response()->json([
                 'message' => 'Two-factor authentication successful using recovery code.',
@@ -202,6 +272,11 @@ class MfaController extends Controller
                 'recovery_codes_remaining' => count($recoveryCodes)
             ]);
         }
+        
+        \Log::error('MFA Verify: Invalid verification code', [
+            'user_id' => $user->id,
+            'code_length' => strlen($request->code)
+        ]);
         
         throw ValidationException::withMessages([
             'code' => ['The provided code is invalid.'],

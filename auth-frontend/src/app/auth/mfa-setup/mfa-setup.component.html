@@ -16,16 +16,33 @@
         <mat-error>{{ error }}</mat-error>
       </div>
       
-      <!-- Step 1: QR Code and Secret -->
+      <!-- Step 1: Password and QR Code -->
       <div class="setup-step" *ngIf="setupStep === 1 && !loading">
         <h2>Step 1: Scan QR Code</h2>
-        <p>Scan this QR code with your authenticator app (like Google Authenticator, Authy, or Microsoft Authenticator).</p>
+        <p>Enter your password and scan the QR code with your authenticator app.</p>
         
-        <div class="qr-code-container">
-          <img [src]="qrCodeUrl" alt="QR Code for MFA Setup" *ngIf="qrCodeUrl">
+        <form [formGroup]="passwordForm" (ngSubmit)="initiateSetup()">
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Your Password</mat-label>
+              <input matInput type="password" formControlName="password" required>
+              <mat-error *ngIf="p['password'].errors?.['required']">Password is required</mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="passwordForm.invalid || loading">
+              <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+              <span *ngIf="!loading">Generate QR Code</span>
+            </button>
+          </div>
+        </form>
+        
+        <div class="qr-code-container" *ngIf="qrCodeData">
+          <div [innerHTML]="qrCodeData"></div>
         </div>
         
-        <div class="secret-key-container">
+        <div class="secret-key-container" *ngIf="secret">
           <p>Or manually enter this secret key:</p>
           <div class="secret-key">
             <code>{{ secret }}</code>
@@ -35,7 +52,7 @@
           </div>
         </div>
         
-        <div class="step-actions">
+        <div class="step-actions" *ngIf="qrCodeData">
           <button mat-raised-button color="primary" (click)="nextStep()">Next</button>
         </div>
       </div>
