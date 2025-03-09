@@ -1,0 +1,63 @@
+<div class="verification-container">
+    <mat-card class="verification-card">
+      <mat-card-header>
+        <mat-card-title>Email Verification</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <!-- Loading state -->
+        <div *ngIf="loading" class="loading-state">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Please wait...</p>
+        </div>
+        
+        <!-- Error message -->
+        <div *ngIf="error && !loading" class="error-message">
+          <mat-icon color="warn">error</mat-icon>
+          <p>{{ error }}</p>
+        </div>
+        
+        <!-- Success state (verified) -->
+        <div *ngIf="verified && !loading" class="success-message">
+          <mat-icon color="primary">check_circle</mat-icon>
+          <h3>Email Verified Successfully!</h3>
+          <p>Your email has been verified. You will be redirected to the dashboard.</p>
+        </div>
+        
+        <!-- Unverified state with instructions -->
+        <div *ngIf="!verified && !loading">
+          <div class="email-info">
+            <p class="email-verification-message">
+              We've sent a verification link to <strong>{{ email }}</strong>
+            </p>
+            <p class="verification-instructions">
+              Please check your email and click the verification link to confirm your account.
+            </p>
+          </div>
+          
+          <div class="resend-section">
+            <p>Didn't receive the email?</p>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="resendVerificationEmail()" 
+              [disabled]="loading || emailSent"
+              class="resend-button"
+            >
+              <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+              <span *ngIf="!loading">{{ emailSent ? 'Email Sent' : 'Resend Email' }}</span>
+            </button>
+          </div>
+          
+          <mat-divider class="divider"></mat-divider>
+          
+          <div class="logout-section">
+            <p>Want to use a different account?</p>
+            <button mat-stroked-button (click)="logout()" class="logout-button">
+              Logout
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>

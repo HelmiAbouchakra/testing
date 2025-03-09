@@ -1,0 +1,103 @@
+<div class="mfa-setup-container">
+  <mat-card class="mfa-setup-card">
+    <mat-card-header>
+      <mat-card-title>Two-Factor Authentication Setup</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- Loading spinner -->
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading...</p>
+      </div>
+      
+      <!-- Error message -->
+      <div class="error-container" *ngIf="error">
+        <mat-error>{{ error }}</mat-error>
+      </div>
+      
+      <!-- Step 1: QR Code and Secret -->
+      <div class="setup-step" *ngIf="setupStep === 1 && !loading">
+        <h2>Step 1: Scan QR Code</h2>
+        <p>Scan this QR code with your authenticator app (like Google Authenticator, Authy, or Microsoft Authenticator).</p>
+        
+        <div class="qr-code-container">
+          <img [src]="qrCodeUrl" alt="QR Code for MFA Setup" *ngIf="qrCodeUrl">
+        </div>
+        
+        <div class="secret-key-container">
+          <p>Or manually enter this secret key:</p>
+          <div class="secret-key">
+            <code>{{ secret }}</code>
+            <button mat-icon-button color="primary" (click)="copySecret()" matTooltip="Copy to clipboard">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+        
+        <div class="step-actions">
+          <button mat-raised-button color="primary" (click)="nextStep()">Next</button>
+        </div>
+      </div>
+      
+      <!-- Step 2: Verification -->
+      <div class="setup-step" *ngIf="setupStep === 2 && !loading">
+        <h2>Step 2: Verify Code</h2>
+        <p>Enter the 6-digit code from your authenticator app to verify setup.</p>
+        
+        <form [formGroup]="setupForm" (ngSubmit)="verifyAndEnable()">
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Authentication Code</mat-label>
+              <input matInput formControlName="code" 
+                    placeholder="Enter 6-digit code" 
+                    autocomplete="off"
+                    required>
+              <mat-error *ngIf="f['code'].errors?.['required']">Code is required</mat-error>
+              <mat-error *ngIf="f['code'].errors?.['pattern']">
+                Code must be 6 digits
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-actions">
+            <button mat-button (click)="previousStep()">Back</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="setupForm.invalid || loading">
+              <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+              <span *ngIf="!loading">Verify & Enable</span>
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Step 3: Recovery Codes -->
+      <div class="setup-step" *ngIf="setupStep === 3 && !loading">
+        <h2>Step 3: Save Recovery Codes</h2>
+        <p class="important-note">
+          <mat-icon color="warn">warning</mat-icon>
+          <span>IMPORTANT: Save these recovery codes in a secure location. They will only be shown once!</span>
+        </p>
+        <p>If you lose access to your authenticator app, you can use one of these recovery codes to sign in.</p>
+        
+        <div class="recovery-codes-container">
+          <mat-list>
+            <mat-list-item *ngFor="let code of recoveryCodes">{{ code }}</mat-list-item>
+          </mat-list>
+        </div>
+        
+        <div class="recovery-actions">
+          <button mat-stroked-button (click)="copyRecoveryCodes()">
+            <mat-icon>content_copy</mat-icon> Copy Codes
+          </button>
+          <button mat-stroked-button (click)="downloadRecoveryCodes()">
+            <mat-icon>download</mat-icon> Download Codes
+          </button>
+        </div>
+        
+        <div class="step-actions">
+          <button mat-raised-button color="primary" (click)="finishSetup()">Finish Setup</button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

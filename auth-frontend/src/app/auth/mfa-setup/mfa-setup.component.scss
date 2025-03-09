@@ -1,0 +1,156 @@
+.mfa-setup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.mfa-setup-card {
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+mat-card-header {
+  margin-bottom: 20px;
+}
+
+mat-card-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+.error-container {
+  margin: 16px 0;
+  padding: 12px;
+  background-color: rgba(244, 67, 54, 0.1);
+  border-radius: 4px;
+}
+
+.setup-step {
+  margin-bottom: 24px;
+  
+  h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  p {
+    margin-bottom: 16px;
+    color: #555;
+  }
+}
+
+.qr-code-container {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+  
+  img {
+    max-width: 200px;
+    border: 1px solid #ddd;
+    padding: 8px;
+    background-color: white;
+  }
+}
+
+.secret-key-container {
+  margin: 24px 0;
+  
+  p {
+    margin-bottom: 8px;
+  }
+}
+
+.secret-key {
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: monospace;
+  
+  code {
+    flex: 1;
+    font-size: 16px;
+    word-break: break-all;
+  }
+}
+
+.form-field {
+  margin-bottom: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.important-note {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 152, 0, 0.1);
+  padding: 12px;
+  border-radius: 4px;
+  margin: 16px 0;
+  
+  mat-icon {
+    margin-right: 8px;
+  }
+  
+  span {
+    font-weight: 500;
+  }
+}
+
+.recovery-codes-container {
+  margin: 24px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  
+  mat-list-item {
+    font-family: monospace;
+    font-size: 16px;
+  }
+}
+
+.recovery-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  
+  button {
+    flex: 1;
+  }
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
