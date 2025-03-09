@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
 
 class VerificationController extends Controller
 {
@@ -24,22 +25,31 @@ class VerificationController extends Controller
     }
 
     /**
-     * Mark the authenticated user's email address as verified.
+     * Verify the user's email using a verification code.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @param  string  $hash
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verify(Request $request, $id, $hash): JsonResponse
+    public function verify(Request $request): JsonResponse
     {
-        // Find the user by ID
-        $user = User::findOrFail($id);
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'code' => 'required|string|size:6',
+        ]);
 
-        // Check if the URL is valid
-        if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'Invalid verification link.'
+                'message' => 'Invalid verification code format.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Get the authenticated user
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
             ], 401);
         }
 
@@ -50,21 +60,30 @@ class VerificationController extends Controller
             ], 200);
         }
 
+        // Check if the verification code is valid
+        if (!$user->isValidVerificationCode($request->code)) {
+            return response()->json([
+                'message' => 'Invalid or expired verification code.'
+            ], 422);
+        }
+
         // Mark email as verified
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
+            
+            // Clear the verification code
+            $user->verification_code = null;
+            $user->verification_code_expires_at = null;
+            $user->save();
         }
 
-        // Redirect to SPA with success message
-        $redirectUrl = config('app.spa_url') . '/email-verified?verified=true';
         return response()->json([
-            'message' => 'Email has been verified successfully.',
-            'redirect' => $redirectUrl
+            'message' => 'Email has been verified successfully.'
         ], 200);
     }
 
     /**
-     * Resend the email verification notification.
+     * Resend the email verification notification with a code.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
@@ -73,16 +92,39 @@ class VerificationController extends Controller
     {
         $user = $request->user();
 
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
         if ($user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Email already verified.'
             ], 200);
         }
 
-        $user->sendEmailVerificationNotification();
-
-        return response()->json([
-            'message' => 'Verification link sent!'
-        ], 200);
+        try {
+            // Generate a new verification code
+            $code = $user->generateVerificationCode();
+            
+            // Send the verification code email
+            $user->sendEmailVerificationNotification();
+            
+            // Log the email sending attempt
+            \Log::info('Verification code generated for user: ' . $user->email . ' Code: ' . $code);
+            
+            return response()->json([
+                'message' => 'Verification code sent!',
+                'code' => $code // For testing purposes only, remove in production
+            ], 200);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send verification email: ' . $e->getMessage());
+            
+            return response()->json([
+                'message' => 'Failed to send verification email. Please try again later.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

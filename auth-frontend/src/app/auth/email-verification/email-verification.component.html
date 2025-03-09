@@ -28,24 +28,47 @@
         <div *ngIf="!verified && !loading">
           <div class="email-info">
             <p class="email-verification-message">
-              We've sent a verification link to <strong>{{ email }}</strong>
+              We've sent a verification code to <strong>{{ email }}</strong>
             </p>
             <p class="verification-instructions">
-              Please check your email and click the verification link to confirm your account.
+              Please check your email and enter the 6-digit verification code below.
             </p>
           </div>
           
-          <div class="resend-section">
-            <p>Didn't receive the email?</p>
+          <!-- Verification Code Form -->
+          <form [formGroup]="verifyForm" (ngSubmit)="submitVerificationCode()" class="verification-form">
+            <mat-form-field appearance="outline" class="code-input">
+              <mat-label>Verification Code</mat-label>
+              <input matInput formControlName="code" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]*">
+              <mat-hint>Enter the 6-digit code from your email</mat-hint>
+              <mat-error *ngIf="f['code'].errors?.['required']">Code is required</mat-error>
+              <mat-error *ngIf="f['code'].errors?.['minlength'] || f['code'].errors?.['maxlength']">Code must be 6 digits</mat-error>
+              <mat-error *ngIf="f['code'].errors?.['pattern']">Code must contain only numbers</mat-error>
+            </mat-form-field>
+            
             <button 
               mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="verifyForm.invalid || loading"
+              class="verify-button"
+            >
+              <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+              <span *ngIf="!loading">Verify Email</span>
+            </button>
+          </form>
+          
+          <div class="resend-section">
+            <p>Didn't receive the code?</p>
+            <button 
+              mat-stroked-button 
               color="primary" 
               (click)="resendVerificationEmail()" 
               [disabled]="loading || emailSent"
               class="resend-button"
             >
               <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
-              <span *ngIf="!loading">{{ emailSent ? 'Email Sent' : 'Resend Email' }}</span>
+              <span *ngIf="!loading">{{ emailSent ? 'Code Sent' : 'Resend Code' }}</span>
             </button>
           </div>
           

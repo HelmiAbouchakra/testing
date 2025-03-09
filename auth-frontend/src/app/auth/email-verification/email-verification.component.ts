@@ -51,18 +51,7 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Initialize form
     this.verifyForm = this.formBuilder.group({
-      code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
-    });
-
-    // Check for verification from URL (if user clicked email link)
-    this.route.queryParams.subscribe(params => {
-      const id = params['id'];
-      const hash = params['hash'];
-      
-      if (id && hash) {
-        this.verifyEmailWithLink(id, hash);
-        return; // Don't continue with automatic sending if verifying a link
-      }
+      code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6), Validators.pattern('^[0-9]*$')]]
     });
 
     // Check if user is already verified
@@ -81,7 +70,6 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
             this.email = authState.user?.email || '';
             
             // Automatically send verification email when the component loads
-            // but only if we're not already in the process of verifying a link
             if (!this.loading && !this.verified) {
               this.sendVerificationEmail();
             }
@@ -116,18 +104,22 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     
+    console.log('Sending verification email request...');
+    
     this.authService.resendVerificationEmail().subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Verification email response:', response);
         this.loading = false;
         this.emailSent = true;
         // Store timestamp to prevent multiple immediate sends
         localStorage.setItem('lastVerificationEmailSent', Date.now().toString());
-        this.snackBar.open('Verification email sent! Please check your inbox.', 'Close', {
+        this.snackBar.open('Verification code sent! Please check your inbox.', 'Close', {
           duration: 5000,
           panelClass: ['success-snackbar']
         });
       },
       error: (error: HttpErrorResponse) => {
+        console.error('Verification email error:', error);
         this.loading = false;
         this.error = error.message || 'Failed to send verification email';
         this.snackBar.open(this.error || 'Failed to send verification email', 'Close', {
@@ -144,12 +136,19 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
     this.sendVerificationEmail();
   }
 
-  verifyEmailWithLink(id: string, hash: string): void {
+  // Submit verification code
+  submitVerificationCode(): void {
+    if (this.verifyForm.invalid) {
+      return;
+    }
+
     this.loading = true;
     this.error = null;
 
-    this.authService.verifyEmailWithLink(id, hash).subscribe({
-      next: (response) => {
+    const code = this.verifyForm.get('code')?.value;
+
+    this.authService.verifyEmailWithCode(code).subscribe({
+      next: () => {
         this.loading = false;
         this.verified = true;
         this.snackBar.open('Email verified successfully!', 'Close', {
@@ -164,7 +163,7 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
       },
       error: (error: HttpErrorResponse) => {
         this.loading = false;
-        this.error = error.message || 'Failed to verify email';
+        this.error = error.error?.message || 'Failed to verify email';
         this.snackBar.open(this.error || 'Failed to verify email', 'Close', {
           duration: 5000,
           panelClass: ['error-snackbar']

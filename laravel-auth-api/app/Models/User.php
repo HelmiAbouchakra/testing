@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\VerifyEmailWithCode;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -32,6 +33,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'mfa_secret',
         'mfa_recovery_codes',
         'mfa_confirmed_at',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     /**
@@ -61,6 +64,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'mfa_enabled' => 'boolean',
             'mfa_recovery_codes' => 'array',
             'mfa_confirmed_at' => 'datetime',
+            'verification_code_expires_at' => 'datetime',
         ];
     }
 
@@ -95,5 +99,51 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->save();
         
         return $recoveryCodes;
+    }
+
+    /**
+     * Generate a 6-digit verification code.
+     *
+     * @return string
+     */
+    public function generateVerificationCode(): string
+    {
+        // Generate a random 6-digit code
+        $code = sprintf('%06d', mt_rand(0, 999999));
+        
+        // Store the code and set expiration time (1 hour from now)
+        $this->verification_code = $code;
+        $this->verification_code_expires_at = now()->addHour();
+        $this->save();
+        
+        return $code;
+    }
+    
+    /**
+     * Check if the verification code is valid.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function isValidVerificationCode(string $code): bool
+    {
+        // Check if the code matches and hasn't expired
+        return $this->verification_code === $code && 
+               $this->verification_code_expires_at && 
+               now()->lt($this->verification_code_expires_at);
+    }
+
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        // Generate a new verification code
+        $code = $this->generateVerificationCode();
+        
+        // Send the notification with the code
+        $this->notify(new VerifyEmailWithCode($code));
     }
 }

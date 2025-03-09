@@ -33,6 +33,10 @@ Route::prefix('v1')->group(function () {
         Route::get('user', 'Auth\AuthController@user')->middleware('auth:sanctum');
         Route::post('email/verification-notification', 'Auth\VerificationController@resend')
             ->middleware(['auth:sanctum', 'throttle:6,1']);
+        Route::post('email/verify', 'Auth\VerificationController@verify')
+            ->middleware(['auth:sanctum', 'throttle:6,1']);
+        
+        // Keep the old route for backward compatibility (if needed)
         Route::get('email/verify/{id}/{hash}', 'Auth\VerificationController@verify')
             ->name('verification.verify');
         

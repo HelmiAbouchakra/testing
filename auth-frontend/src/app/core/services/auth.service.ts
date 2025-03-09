@@ -209,6 +209,22 @@ export class AuthService {
   }
 
   /**
+   * Verify email with code
+   */
+  verifyEmailWithCode(code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/email/verify`, { code }, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          // Update the user state to reflect verified email
+          this.getCurrentUser().subscribe();
+        }),
+        catchError(error => {
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
    * Get the current authenticated user
    */
   getCurrentUser(): Observable<User> {

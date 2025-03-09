@@ -6,11 +6,11 @@ use App\Listeners\LogFailedLogin;
 use App\Listeners\LogSuccessfulLogin;
 use App\Listeners\LogSuccessfulLogout;
 use App\Listeners\LogMfaVerification;
+use App\Listeners\SendVerificationCodeNotification;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use PragmaRX\Google2FALaravel\Events\LoginSucceeded;
@@ -35,7 +35,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         // Registration and verification
         Registered::class => [
-            SendEmailVerificationNotification::class,
+            SendVerificationCodeNotification::class,
         ],
         // MFA event
         LoginSucceeded::class => [
