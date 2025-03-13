@@ -21,6 +21,20 @@
     </div>
   </mat-toolbar>
 
+  <!-- Email verification alert -->
+  <div *ngIf="user && !user.email_verified_at" class="email-verification-alert">
+    <div class="alert-content">
+      <mat-icon color="warn">warning</mat-icon>
+      <span>Your email address ({{ user.email }}) has not been verified. Please check your inbox or</span>
+      <button mat-button color="accent" (click)="resendVerificationEmail()" [disabled]="isResendingEmail">
+        {{ isResendingEmail ? 'Sending...' : 'Resend verification email' }}
+      </button>
+    </div>
+    <div *ngIf="verificationMessage" class="verification-message" [ngClass]="{'success': verificationSuccess, 'error': !verificationSuccess}">
+      {{ verificationMessage }}
+    </div>
+  </div>
+
   <div class="dashboard-content">
     <mat-card class="dashboard-card">
       <mat-card-header>

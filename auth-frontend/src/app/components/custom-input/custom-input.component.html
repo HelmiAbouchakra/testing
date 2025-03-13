@@ -1,0 +1,27 @@
+<div class="custom-input-container">
+    <div class="custom-input-wrapper">
+      <input
+        [type]="inputType"
+        [value]="value"
+        (input)="onInput($event)"
+        [ngStyle]="{ 'border-color': borderColor }"
+        class="custom-input"
+        [id]="inputId"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+        [class.has-value]="hasValue"
+      />
+      <label [for]="inputId" class="floating-label" [class.active]="isActive">{{ placeholder }}</label>
+      
+      <button
+        *ngIf="type === 'password'"
+        type="button"
+        class="toggle-password-btn"
+        (click)="togglePasswordVisibility()"
+        aria-label="Toggle password visibility"
+      >
+        <fa-icon [icon]="showPassword ? faEyeSlash : faEye"></fa-icon>
+      </button>
+    </div>
+  </div>
+  

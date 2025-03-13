@@ -14,6 +14,7 @@ export interface AuthResponse {
   user: any;
   token?: string;
   requires_mfa?: boolean;
+  verification_code?: string; // Added for debugging purposes
 }
 
 export interface ForgotPasswordRequest {
@@ -46,6 +47,7 @@ export interface MfaVerifyRequest {
 export interface MfaVerifyResponse {
   success: boolean;
   message?: string;
+  user?: any;
 }
 
 export interface PasswordChangeRequest {

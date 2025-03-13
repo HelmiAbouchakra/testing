@@ -33,6 +33,23 @@
         </div>
       </form>
       
+      <!-- Social Login Buttons - Only show when showSocialButtons is true -->
+      <div class="social-login" *ngIf="showSocialButtons">
+        <div class="social-login-text">
+          <span>Or login with</span>
+        </div>
+        <div class="social-buttons">
+          <button mat-raised-button class="google-btn" (click)="loginWithSocial('google')" type="button">
+            <img src="assets/images/google-icon.svg" alt="Google" class="social-icon">
+            Google
+          </button>
+          <button mat-raised-button class="facebook-btn" (click)="loginWithSocial('facebook')" type="button">
+            <img src="assets/images/facebook-icon.svg" alt="Facebook" class="social-icon">
+            Facebook
+          </button>
+        </div>
+      </div>
+      
       <div class="additional-options">
         <a routerLink="/auth/forgot-password" class="forgot-password">Forgot Password?</a>
         <mat-divider></mat-divider>

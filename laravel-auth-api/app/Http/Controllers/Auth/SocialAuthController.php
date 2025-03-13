@@ -20,7 +20,12 @@ class SocialAuthController extends Controller
      */
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        // Use our custom configuration which has the correct callback URL
+        $config = config('social-auth-setup.google');
+        return Socialite::driver('google')
+            ->redirectUrl($config['redirect'])
+            ->stateless()
+            ->redirect();
     }
 
     /**
@@ -31,7 +36,12 @@ class SocialAuthController extends Controller
     public function handleGoogleCallback(Request $request)
     {
         try {
-            $socialiteUser = Socialite::driver('google')->stateless()->user();
+            // Use our custom configuration which has the correct callback URL
+            $config = config('social-auth-setup.google');
+            $socialiteUser = Socialite::driver('google')
+                ->redirectUrl($config['redirect'])
+                ->stateless()
+                ->user();
             
             // Find user by provider ID and provider name or by email
             $user = User::where('provider_id', $socialiteUser->getId())
@@ -69,7 +79,8 @@ class SocialAuthController extends Controller
             $request->session()->regenerate();
             
             // Redirect to frontend
-            return redirect(config('app.spa_url') . '/auth/social-callback?provider=google&status=success');
+            $frontendUrl = config('app.spa_url', 'http://localhost:4200');
+            return redirect($frontendUrl . '/auth/social-callback?provider=google&status=success');
             
         } catch (Exception $e) {
             // Redirect to frontend with error
@@ -84,7 +95,12 @@ class SocialAuthController extends Controller
      */
     public function redirectToFacebook()
     {
-        return Socialite::driver('facebook')->stateless()->redirect();
+        // Use our custom configuration which has the correct callback URL
+        $config = config('social-auth-setup.facebook');
+        return Socialite::driver('facebook')
+            ->redirectUrl($config['redirect'])
+            ->stateless()
+            ->redirect();
     }
 
     /**
@@ -95,7 +111,12 @@ class SocialAuthController extends Controller
     public function handleFacebookCallback(Request $request)
     {
         try {
-            $socialiteUser = Socialite::driver('facebook')->stateless()->user();
+            // Use our custom configuration which has the correct callback URL
+            $config = config('social-auth-setup.facebook');
+            $socialiteUser = Socialite::driver('facebook')
+                ->redirectUrl($config['redirect'])
+                ->stateless()
+                ->user();
             
             // Find user by provider ID and provider name or by email
             $user = User::where('provider_id', $socialiteUser->getId())
@@ -133,11 +154,13 @@ class SocialAuthController extends Controller
             $request->session()->regenerate();
             
             // Redirect to frontend
-            return redirect(config('app.spa_url') . '/auth/social-callback?provider=facebook&status=success');
+            $frontendUrl = config('app.spa_url', 'http://localhost:4200');
+            return redirect($frontendUrl . '/auth/social-callback?provider=facebook&status=success');
             
         } catch (Exception $e) {
             // Redirect to frontend with error
-            return redirect(config('app.spa_url') . '/auth/social-callback?provider=facebook&status=error&message=' . urlencode($e->getMessage()));
+            $frontendUrl = config('app.spa_url', 'http://localhost:4200');
+            return redirect($frontendUrl . '/auth/social-callback?provider=facebook&status=error&message=' . urlencode($e->getMessage()));
         }
     }
 }

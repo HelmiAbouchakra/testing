@@ -18,9 +18,10 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private router: Router) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Always include credentials for cross-site requests
+    // Always include credentials for cross-site requests and add proper headers for Sanctum
     request = request.clone({
-      withCredentials: true
+      withCredentials: true,
+      headers: request.headers.set('X-Requested-With', 'XMLHttpRequest')
     });
 
     return next.handle(request).pipe(
@@ -32,11 +33,27 @@ export class AuthInterceptor implements HttpInterceptor {
             this.isRefreshing = true;
             this.refreshTokenSubject.next(null);
 
-            // For cookie-based auth, we don't need to refresh tokens
-            // Just redirect to login page
-            this.router.navigate(['/auth/login'], {
-              queryParams: { returnUrl: this.router.url }
-            });
+            // Log the 401 error for debugging
+            console.log('Received 401 Unauthorized, checking if we should redirect', error);
+
+            // Don't redirect for specific API calls like auth checks or API validation
+            const skipRedirectUrls = [
+              '/auth/user',
+              '/csrf-token',
+              '/sanctum/csrf-cookie'
+            ];
+            
+            const shouldRedirect = !skipRedirectUrls.some(url => request.url.includes(url));
+            
+            if (shouldRedirect) {
+              console.log('Redirecting to login page due to 401 error');
+              // For other requests, redirect to login page
+              this.router.navigate(['/auth/login'], {
+                queryParams: { returnUrl: this.router.url }
+              });
+            } else {
+              console.log('Not redirecting for auth check or CSRF request');
+            }
           }
         }
         return throwError(() => error);

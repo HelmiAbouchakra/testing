@@ -15,13 +15,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthRoutingModule } from './auth-routing.module';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { MfaSetupComponent } from './mfa-setup/mfa-setup.component';
-import { MfaVerifyComponent } from './mfa-verify/mfa-verify.component';
-import { ProfileComponent } from './profile/profile.component';
 import { EmailVerificationComponent } from './email-verification/email-verification.component';
 
 @NgModule({
@@ -42,13 +35,6 @@ import { EmailVerificationComponent } from './email-verification/email-verificat
     MatTabsModule,
     MatListModule,
     MatTooltipModule,
-    LoginComponent,
-    RegisterComponent,
-    ForgotPasswordComponent,
-    ResetPasswordComponent,
-    MfaSetupComponent,
-    MfaVerifyComponent,
-    ProfileComponent,
     EmailVerificationComponent
   ]
 })

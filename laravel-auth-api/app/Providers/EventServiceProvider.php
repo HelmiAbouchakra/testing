@@ -34,9 +34,10 @@ class EventServiceProvider extends ServiceProvider
             LogFailedLogin::class,
         ],
         // Registration and verification
-        Registered::class => [
-            SendVerificationCodeNotification::class,
-        ],
+        // Temporarily comment out to diagnose duplicate emails
+        // Registered::class => [
+        //     SendVerificationCodeNotification::class,
+        // ],
         // MFA event
         LoginSucceeded::class => [
             LogMfaVerification::class,

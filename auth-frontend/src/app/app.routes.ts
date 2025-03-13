@@ -16,8 +16,7 @@ export const routes: Routes = [
   },
   {
     path: 'verify-email',
-    component: EmailVerificationComponent,
-    canActivate: [AuthGuard]
+    component: EmailVerificationComponent
   },
   {
     path: 'dashboard',

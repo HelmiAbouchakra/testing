@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -14,21 +14,25 @@ export class CsrfService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Get the CSRF token from the API
+   * Fetch CSRF token from the server
    */
   getCsrfToken(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/csrf-token`, { withCredentials: true })
-      .pipe(
-        tap((response: any) => {
-          if (response && response.csrf_token) {
-            this.csrfToken = response.csrf_token;
-          }
-        }),
-        catchError(error => {
-          console.error('Error fetching CSRF token:', error);
-          return throwError(() => error);
-        })
-      );
+    console.log('Fetching CSRF token from:', `${this.apiUrl}/v1/csrf-token`);
+    
+    return this.http.get(`${this.apiUrl}/v1/csrf-token`, { 
+      withCredentials: true,
+      headers: new HttpHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      })
+    }).pipe(
+      tap(() => console.log('CSRF token fetch successful')),
+      catchError(error => {
+        console.error('CSRF token fetch failed:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**

@@ -37,6 +37,7 @@ export class LoginComponent implements OnInit {
   returnUrl: string = '/dashboard';
   hidePassword = true;
   error: string | null = null;
+  showSocialButtons = true;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -47,25 +48,20 @@ export class LoginComponent implements OnInit {
     private snackBar: MatSnackBar
   ) { }
 
-  ngOnInit(): void {
-    // Initialize the login form
+  ngOnInit(): void {    
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
 
-    // Get return URL from route parameters or default to '/dashboard'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-
-    // Get CSRF token on component initialization
     this.csrfService.getCsrfToken().subscribe();
+    this.showSocialButtons = true;
   }
 
-  // Convenience getter for easy access to form fields
   get f() { return this.loginForm.controls; }
 
   onSubmit(): void {
-    // Stop here if form is invalid
     if (this.loginForm.invalid) {
       return;
     }
@@ -79,18 +75,14 @@ export class LoginComponent implements OnInit {
     }).subscribe({
       next: (response) => {
         if (response.requires_mfa) {
-          // Update auth state to require MFA
           this.authService.updateMfaStatus(true);
           
-          // Redirect to MFA verification
           this.router.navigate(['/auth/mfa-verify'], { 
             queryParams: { returnUrl: this.returnUrl } 
           });
         } else if (response.user && !response.user.email_verified_at) {
-          // User needs to verify email first
           this.router.navigate(['/verify-email']);
         } else {
-          // Navigate to return URL
           this.router.navigate([this.returnUrl]);
         }
       },
@@ -103,5 +95,14 @@ export class LoginComponent implements OnInit {
         });
       }
     });
+  }
+
+
+  loginWithSocial(provider: 'google' | 'facebook'): void {
+    if (provider === 'google') {
+      this.authService.loginWithGoogle();
+    } else if (provider === 'facebook') {
+      this.authService.loginWithFacebook();
+    }
   }
 }

@@ -2,6 +2,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\MfaController;
+use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\CsrfController;
+use App\Http\Controllers\Auth\SocialAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,55 +24,69 @@ use Illuminate\Support\Facades\Route;
 // Publicly accessible routes
 Route::prefix('v1')->group(function () {
     // CSRF token route
-    Route::get('csrf-token', 'Auth\CsrfController@getCsrfToken');
+    Route::get('csrf-token', [CsrfController::class, 'getCsrfToken']);
     
     // Authentication routes
     Route::prefix('auth')->group(function () {
         // Apply rate limiting to login and registration
         Route::middleware(['rate_limit_auth'])->group(function () {
-            Route::post('login', 'Auth\AuthController@login');
-            Route::post('register', 'Auth\AuthController@register');
-            Route::post('forgot-password', 'Auth\PasswordResetController@forgotPassword');
-            Route::post('reset-password', 'Auth\PasswordResetController@resetPassword');
+            Route::post('login', [AuthController::class, 'login']);
+            Route::post('register', [AuthController::class, 'register']);
+            Route::post('check-email', [AuthController::class, 'checkEmailExists']);
+            Route::post('validate-email', [AuthController::class, 'validateEmail']);
+            Route::post('forgot-password', [PasswordResetController::class, 'forgotPassword']);
+            Route::post('reset-password', [PasswordResetController::class, 'resetPassword']);
         });
         
-        Route::post('logout', 'Auth\AuthController@logout')->middleware('auth:sanctum');
-        Route::get('user', 'Auth\AuthController@user')->middleware('auth:sanctum');
-        Route::post('email/verification-notification', 'Auth\VerificationController@resend')
+        Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+        Route::get('user', [AuthController::class, 'user'])->middleware('auth:sanctum');
+        Route::post('email/verification-notification', [VerificationController::class, 'resend'])
             ->middleware(['auth:sanctum', 'throttle:6,1']);
-        Route::post('email/verify', 'Auth\VerificationController@verify')
+        Route::post('email/verify', [VerificationController::class, 'verify'])
             ->middleware(['auth:sanctum', 'throttle:6,1']);
         
+        // Special route for newly registered users that doesn't require authentication
+        Route::post('send-verification-email', [VerificationController::class, 'sendForNewUser'])
+            ->middleware('throttle:6,1');
+            
+        // Special route for verifying emails for newly registered users without authentication
+        Route::post('verify-new-user-email', [VerificationController::class, 'verifyNewUser'])
+            ->middleware('throttle:6,1');
+            
         // Keep the old route for backward compatibility (if needed)
-        Route::get('email/verify/{id}/{hash}', 'Auth\VerificationController@verify')
+        Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
             ->name('verification.verify');
         
         // Social login routes
-        Route::get('google/redirect', 'Auth\SocialAuthController@redirectToGoogle');
-        Route::get('google/callback', 'Auth\SocialAuthController@handleGoogleCallback');
-        Route::get('facebook/redirect', 'Auth\SocialAuthController@redirectToFacebook');
-        Route::get('facebook/callback', 'Auth\SocialAuthController@handleFacebookCallback');
+        Route::get('google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
+        Route::get('google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+        Route::get('facebook/redirect', [SocialAuthController::class, 'redirectToFacebook']);
+        Route::get('facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
     });
     
     // MFA routes
     Route::middleware('auth:sanctum')->prefix('mfa')->group(function () {
-        Route::get('/status', 'Auth\MfaController@status');
-        Route::post('/setup', 'Auth\MfaController@setup');
-        Route::post('/enable', 'Auth\MfaController@enable');
-        Route::post('/disable', 'Auth\MfaController@disable');
-        Route::post('/verify', 'Auth\MfaController@verify');
-        Route::post('/recovery-codes', 'Auth\MfaController@regenerateRecoveryCodes');
+        Route::get('/status', [MfaController::class, 'status']);
+        Route::post('/setup', [MfaController::class, 'setup']);
+        Route::post('/enable', [MfaController::class, 'enable']);
+        Route::post('/disable', [MfaController::class, 'disable']);
+        Route::post('/verify', [MfaController::class, 'verify']);
+        Route::post('/recovery-codes', [MfaController::class, 'regenerateRecoveryCodes']);
     });
 });
+
+// Routes outside the v1 prefix to catch Facebook's callback
+Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 // Standard protected routes (don't require MFA)
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     // User profile routes
     Route::prefix('profile')->group(function () {
-        Route::get('/', 'Auth\ProfileController@show');
-        Route::put('/', 'Auth\ProfileController@update');
-        Route::put('/password', 'Auth\ProfileController@updatePassword');
-        Route::delete('/', 'Auth\ProfileController@destroy');
+        Route::get('/', [ProfileController::class, 'show']);
+        Route::put('/', [ProfileController::class, 'update']);
+        Route::put('/password', [ProfileController::class, 'updatePassword']);
+        Route::delete('/', [ProfileController::class, 'destroy']);
     });
     
     // Other authenticated API endpoints can be added here

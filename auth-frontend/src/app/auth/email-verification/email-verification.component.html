@@ -28,11 +28,12 @@
         <div *ngIf="!verified && !loading">
           <div class="email-info">
             <p class="email-verification-message">
-              We've sent a verification code to <strong>{{ email }}</strong>
+              We've sent a verification code to <strong>{{ email || userEmail }}</strong>
             </p>
             <p class="verification-instructions">
               Please check your email and enter the 6-digit verification code below.
             </p>
+            <!-- Debug info removed -->
           </div>
           
           <!-- Verification Code Form -->

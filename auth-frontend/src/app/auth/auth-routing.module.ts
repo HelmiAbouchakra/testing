@@ -22,6 +22,9 @@ const routes: Routes = [
   },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   
+  // Add social auth callback route with dynamic import for the standalone component
+  { path: 'social-callback', loadComponent: () => import('./social-auth-callback/social-auth-callback.component').then(m => m.SocialAuthCallbackComponent) },
+  
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
 

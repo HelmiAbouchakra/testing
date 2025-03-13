@@ -35,6 +35,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'mfa_confirmed_at',
         'verification_code',
         'verification_code_expires_at',
+        'status',
+        'pending_until',
     ];
 
     /**
@@ -65,6 +67,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'mfa_recovery_codes' => 'array',
             'mfa_confirmed_at' => 'datetime',
             'verification_code_expires_at' => 'datetime',
+            'pending_until' => 'datetime',
         ];
     }
 
@@ -111,10 +114,12 @@ class User extends Authenticatable implements MustVerifyEmail
         // Generate a random 6-digit code
         $code = sprintf('%06d', mt_rand(0, 999999));
         
-        // Store the code and set expiration time (1 hour from now)
+        // Store the code and set expiration time (24 hours from now instead of 1 hour)
         $this->verification_code = $code;
-        $this->verification_code_expires_at = now()->addHour();
+        $this->verification_code_expires_at = now()->addHours(24);
         $this->save();
+        
+        \Log::info('Generated verification code for user: ' . $this->email . ', Code: ' . $code . ', Expires: ' . $this->verification_code_expires_at);
         
         return $code;
     }
@@ -134,22 +139,69 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Mark email as verified and change status to active.
+     *
+     * @return bool
+     */
+    public function markEmailAsVerified()
+    {
+        $this->status = 'active';
+        $this->pending_until = null;
+        return $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp(),
+        ])->save();
+    }
+
+    /**
+     * Check if we already sent a verification email recently to prevent duplicates
+     * 
+     * @return boolean
+     */
+    public function recentlySentVerificationEmail(): bool
+    {
+        // Use a cache key that's unique to this user's email
+        $cacheKey = 'verification_email_sent_' . $this->email;
+        
+        // If the key exists in the cache, we've sent an email recently
+        if (\Cache::has($cacheKey)) {
+            \Log::info('Prevented duplicate verification email to: ' . $this->email);
+            return true;
+        }
+        
+        // Otherwise, mark that we're sending an email now and cache it for 1 minute
+        \Cache::put($cacheKey, true, now()->addMinute());
+        return false;
+    }
+
+    /**
      * Send the email verification notification.
      *
+     * @param string|null $code Optional verification code to send
      * @return void
      */
-    public function sendEmailVerificationNotification(): void
+    public function sendEmailVerificationNotification($code = null)
     {
-        \Log::info('Sending verification email to: ' . $this->email);
-        // Generate a new verification code
-        $code = $this->generateVerificationCode();
+        // Make sure we have a valid verification code before sending
+        if (empty($this->verification_code) || !$this->verification_code_expires_at || now()->gt($this->verification_code_expires_at)) {
+            // Generate a new code if needed
+            $this->generateVerificationCode();
+        }
+
+        // Use the provided code or the one from the database
+        $codeToSend = $code ?? $this->verification_code;
+
+        // Update the database to match the code we're sending in the email
+        if ($code && $code !== $this->verification_code) {
+            $this->verification_code = $code;
+            $this->verification_code_expires_at = now()->addHours(24);
+            $this->save();
+            \Log::info('Updated user verification code in database to match email: ' . $code);
+        }
+
+        // Log the code being sent for debugging
+        \Log::info('Sending verification email to: ' . $this->email . ' with code: ' . $codeToSend);
         
-        // Send the notification with the code
-        try {
-            $this->notify(new VerifyEmailWithCode($code));
-            \Log::info('Notification sent successfully');
-    } catch (\Exception $e) {
-        \Log::error('Error sending notification: ' . $e->getMessage());
+        // Send the notification with the specific code
+        $this->notify(new \App\Notifications\VerifyEmail($codeToSend));
     }
-}
 }

@@ -1,0 +1,13 @@
+<!-- custom-button.component.html -->
+<button
+  [type]="type"
+  [disabled]="disabled || loading"
+  [attr.aria-disabled]="disabled || loading"
+  [attr.aria-label]="effectiveAriaLabel"
+  (click)="onClick($event)"
+  class="custom-button"
+  [ngClass]="{'loading': loading, 'disabled': disabled || loading}">
+    
+  <span *ngIf="loading" class="spinner"></span>
+  <span [ngClass]="{'visually-hidden': loading}">{{ text }}</span>
+</button>

@@ -1,0 +1,12 @@
+<div class="social-callback-container">
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <h2>Please wait while we authenticate you...</h2>
+  </div>
+  
+  <div class="error-container" *ngIf="error">
+    <h2>Authentication Error</h2>
+    <p>{{ error }}</p>
+    <p>Redirecting to login page...</p>
+  </div>
+</div>

@@ -4,61 +4,105 @@
       <mat-card-title>Create an Account</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <div class="form-field">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Full Name</mat-label>
-            <input matInput formControlName="name" placeholder="Enter your full name" required>
-            <mat-error *ngIf="f['name'].errors?.['required']">Name is required</mat-error>
-            <mat-error *ngIf="f['name'].errors?.['minlength']">Name must be at least 3 characters</mat-error>
-          </mat-form-field>
+      <form [formGroup]="registerForm">
+        <!-- Step indicator -->
+        <div class="step-indicator">
+          <div class="step" [ngClass]="{'active': currentStep >= 1}">1</div>
+          <div class="step-line"></div>
+          <div class="step" [ngClass]="{'active': currentStep >= 2}">2</div>
         </div>
         
-        <div class="form-field">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" placeholder="Enter your email" required>
-            <mat-error *ngIf="f['email'].errors?.['required']">Email is required</mat-error>
-            <mat-error *ngIf="f['email'].errors?.['email']">Please enter a valid email address</mat-error>
-          </mat-form-field>
-        </div>
-        
-        <div class="form-field">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Password</mat-label>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Enter your password" required>
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        <!-- Step 1: Name and Email -->
+        <div class="step-content" *ngIf="currentStep === 1">
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="name" placeholder="Enter your full name" required>
+              <mat-error *ngIf="f['name'].errors?.['required']">Name is required</mat-error>
+              <mat-error *ngIf="f['name'].errors?.['minlength']">Name must be at least 3 characters</mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" placeholder="Enter your email" required>
+              <mat-progress-spinner *ngIf="f['email'].pending" matSuffix diameter="20" mode="indeterminate"></mat-progress-spinner>
+              <mat-error *ngIf="f['email'].errors?.['required']">Email is required</mat-error>
+              <mat-error *ngIf="f['email'].errors?.['email']">Please enter a valid email address</mat-error>
+              <mat-error *ngIf="f['email'].errors?.['invalidEmail']">This email appears to be invalid or not deliverable</mat-error>
+              <mat-error *ngIf="f['email'].errors?.['disposableEmail']">Please use a permanent email address, not a temporary one</mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="button" (click)="nextStep()" class="full-width">
+              Continue
             </button>
-            <mat-error *ngIf="f['password'].errors?.['required']">Password is required</mat-error>
-            <mat-error *ngIf="f['password'].errors?.['minlength']">Password must be at least 8 characters</mat-error>
-            <mat-error *ngIf="f['password'].errors?.['passwordStrength']">
-              Password must include uppercase, lowercase, number, and special character
-            </mat-error>
-          </mat-form-field>
-        </div>
-        
-        <div class="form-field">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Confirm Password</mat-label>
-            <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="password_confirmation" placeholder="Confirm your password" required>
-            <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
-              <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-            <mat-error *ngIf="f['password_confirmation'].errors?.['required']">Confirm password is required</mat-error>
-          </mat-form-field>
-          <div class="password-mismatch-error" *ngIf="registerForm.errors?.['passwordMismatch'] && (registerForm.touched || registerForm.dirty)">
-            Passwords do not match
           </div>
         </div>
         
-        <div class="form-actions">
-          <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid || loading" class="full-width">
-            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-            <span *ngIf="!loading">Register</span>
-          </button>
+        <!-- Step 2: Password and Confirmation -->
+        <div class="step-content" *ngIf="currentStep === 2">
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Enter your password" required>
+              <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="f['password'].errors?.['required']">Password is required</mat-error>
+              <mat-error *ngIf="f['password'].errors?.['minlength']">Password must be at least 8 characters</mat-error>
+              <mat-error *ngIf="f['password'].errors?.['passwordStrength']">
+                Password must include uppercase, lowercase, number, and special character
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Confirm Password</mat-label>
+              <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="password_confirmation" placeholder="Confirm your password" required>
+              <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
+                <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="f['password_confirmation'].errors?.['required']">Confirm password is required</mat-error>
+            </mat-form-field>
+            <div class="password-mismatch-error" *ngIf="registerForm.errors?.['passwordMismatch'] && (registerForm.touched || registerForm.dirty)">
+              Passwords do not match
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <div class="button-row">
+              <button mat-stroked-button type="button" (click)="previousStep()" class="back-button">
+                Back
+              </button>
+              <button mat-raised-button color="primary" type="button" (click)="onSubmit()" [disabled]="registerForm.invalid || loading" class="register-button">
+                <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+                <span *ngIf="!loading">Register</span>
+              </button>
+            </div>
+          </div>
         </div>
       </form>
+      
+      <!-- Social Login Buttons - Only show when appropriate -->
+      <div class="social-login" *ngIf="showSocialButtons">
+        <div class="social-login-text">
+          <span>Or register with</span>
+        </div>
+        <div class="social-buttons">
+          <button mat-raised-button class="google-btn" (click)="registerWithSocial('google')" type="button">
+            <img src="assets/images/google-icon.svg" alt="Google" class="social-icon">
+            Google
+          </button>
+          <button mat-raised-button class="facebook-btn" (click)="registerWithSocial('facebook')" type="button">
+            <img src="assets/images/facebook-icon.svg" alt="Facebook" class="social-icon">
+            Facebook
+          </button>
+        </div>
+      </div>
       
       <div class="additional-options">
         <mat-divider></mat-divider>

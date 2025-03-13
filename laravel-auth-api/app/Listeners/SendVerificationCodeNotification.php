@@ -22,11 +22,14 @@ class SendVerificationCodeNotification implements ShouldQueue
      */
     public function handle(Registered $event): void
     {
+        Log::info('SendVerificationCodeNotification listener triggered for user: ' . $event->user->email . ' at ' . now()->toDateTimeString());
+        
         if ($event->user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail &&
             ! $event->user->hasVerifiedEmail()) {
             
             try {
                 // Generate a verification code and send the notification
+                Log::info('About to send verification notification for: ' . $event->user->email);
                 $event->user->sendEmailVerificationNotification();
                 
                 // Log success for debugging

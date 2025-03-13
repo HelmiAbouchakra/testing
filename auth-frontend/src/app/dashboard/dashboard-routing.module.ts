@@ -7,7 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: DashboardComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    data: {
+      skipMfaCheck: true,
+      requiresEmailVerification: false
+    }
   }
 ];
 
