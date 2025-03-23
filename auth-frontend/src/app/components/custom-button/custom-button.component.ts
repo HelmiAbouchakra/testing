@@ -1,6 +1,15 @@
 // custom-button.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 
 @Component({
   selector: 'app-custom-button',
@@ -8,7 +17,7 @@ import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, Elemen
   imports: [CommonModule],
   templateUrl: './custom-button.component.html',
   styleUrls: ['./custom-button.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomButtonComponent implements OnChanges {
   @Input() text: string = 'Button';
@@ -20,15 +29,18 @@ export class CustomButtonComponent implements OnChanges {
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
   @Input() ariaLabel?: string;
   @Input() loading: boolean = false;
-  
+  @Input() iconSrc?: string; // Path to icon
+  @Input() iconPosition: 'left' | 'right' = 'left';
+  @Input() linkStyle: boolean = false; // New input for link-style buttons
+
   @Output() buttonClick = new EventEmitter<void>();
-  
+
   constructor(private el: ElementRef) {}
-  
+
   ngOnChanges(changes: SimpleChanges): void {
     this.updateCssVariables();
   }
-  
+
   private updateCssVariables(): void {
     // Get the button element
     const button = this.el.nativeElement.querySelector('.custom-button');
@@ -40,32 +52,34 @@ export class CustomButtonComponent implements OnChanges {
       button.style.setProperty('--disabled-color', this.effectiveDisabledColor);
     }
   }
-  
+
   get effectiveHoverColor(): string {
     return this.hoverColor || this.adjustBrightness(this.backgroundColor, 20);
   }
-  
+
   get effectiveDisabledColor(): string {
-    return this.disabledColor || this.adjustBrightness(this.backgroundColor, -30);
+    return (
+      this.disabledColor || this.adjustBrightness(this.backgroundColor, -30)
+    );
   }
-  
+
   get effectiveAriaLabel(): string {
     return this.ariaLabel || this.text;
   }
-  
+
   onClick(event: Event) {
     if (!this.disabled && !this.loading) {
       this.buttonClick.emit();
     }
   }
-  
+
   // Utility to lighten or darken the button color
   private adjustBrightness(hex: string, percent: number): string {
     // Handle transparent or non-hex colors
     if (!hex || hex === 'transparent' || !hex.startsWith('#')) {
       return hex;
     }
-        
+
     try {
       const num = parseInt(hex.replace('#', ''), 16);
       const amt = Math.round(2.55 * percent);

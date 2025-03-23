@@ -1,172 +1,121 @@
+@use "sass:color";
+
+/* Variables */
+$text-color: #fff;
+$primary-color: #d97757;
+$secondary-color: #c36b4e;
+$error-color: #ef4444;
+$background-color: #3d3d3a;
+$lighter-text: #8f8d85;
+
 .login-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f5f5f5;
-}
-
-.login-card {
+  flex-direction: column;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  gap: 1rem;
 }
 
-mat-card-header {
-  margin-bottom: 20px;
+/* Login Form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
 }
 
-mat-card-title {
-  font-size: 24px;
-  font-weight: 500;
-  color: #333;
-}
-
+/* Form fields */
 .form-field {
-  margin-bottom: 16px;
-}
-
-.full-width {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-}
 
-.input-container {
-  width: 100%;
-  margin-bottom: 8px;
-  
-  app-custom-input {
-    width: 100%;
-    display: block;
-  }
-  
   .input-error {
-    color: #f44336;
-    font-size: 12px;
-    margin-top: 4px;
-    min-height: 18px;
+    color: $error-color;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
   }
 }
 
-.form-actions {
-  margin-top: 24px;
-  margin-bottom: 16px;
+/* Forgot password container - updated for proper wrapping */
+.forgot-password-container {
+  width: 100%;
+  font-size: 0.875rem;
+  display: block; /* Changed from flex to block for better wrapping */
+  text-align: left;
 }
 
-/* Social Login Styles */
+.forgot-password-text {
+  color: $lighter-text;
+  font-size: 0.9rem;
+  margin: 0;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* Style to ensure the custom button aligns properly when wrapping */
+.forgot-password-container app-custom-button {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+/* Social Login */
 .social-login {
-  margin-top: 20px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
 }
 
 .social-login-text {
   position: relative;
-  margin-bottom: 16px;
-  
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
   span {
-    background-color: white;
-    padding: 0 10px;
+    color: $text-color;
+    font-size: 0.875rem;
+    padding: 0 0.75rem;
     position: relative;
     z-index: 1;
-    color: #757575;
-    font-size: 14px;
   }
-  
-  &:before {
+
+  &:before,
+  &:after {
     content: "";
-    display: block;
+    flex-grow: 1;
     height: 1px;
-    background-color: #e0e0e0;
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    z-index: 0;
+    background-color: $lighter-text;
   }
 }
 
 .social-buttons {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  
-  button {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px 0;
-    border-radius: 4px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    
-    .social-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: 8px;
-    }
-  }
-  
-  .google-btn {
-    background-color: white;
-    color: #757575;
-    border: 1px solid #e0e0e0;
-    
-    &:hover {
-      background-color: #f5f5f5;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    }
-  }
-  
-  .facebook-btn {
-    background-color: #4267B2;
-    color: white;
-    
-    &:hover {
-      background-color: #365899;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    }
-  }
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
 }
 
-.additional-options {
-  margin-top: 24px;
+/* Auth Links - Sign up section */
+.auth-links {
+  width: 100%;
   text-align: center;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
 
-.forgot-password {
-  display: block;
-  margin-bottom: 16px;
-  color: #3f51b5;
-  text-decoration: none;
-}
-
-mat-divider {
-  margin: 16px 0;
-}
-
-.register-link {
-  margin-top: 16px;
-  
-  span {
-    margin-right: 8px;
+  p {
+    color: $lighter-text;
+    font-size: 0.9rem;
+    margin: 0;
   }
-  
-  a {
-    color: #3f51b5;
-    text-decoration: none;
-    font-weight: 500;
+
+  @media (max-width: 320px) {
+    flex-direction: row;
+    gap: 8px;
   }
-}
-
-/* For the loading spinner */
-mat-spinner {
-  display: inline-block;
-  margin-right: 8px;
-}
-
-/* Error styles */
-.error-snackbar {
-  background-color: #f44336;
-  color: white;
 }

@@ -1,6 +1,5 @@
-// @use "ngx-toastr/toastr" as toastr;
-// In styles.scss
-@import '@angular/material/prebuilt-themes/indigo-pink.css';  
+// @import '@angular/material/prebuilt-themes/indigo-pink.css';
+@use "ngx-toastr/toastr" as toastr;
 @import url("https://fonts.googleapis.com/css2?family=Monomaniac+One&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
 
 * {
@@ -8,5 +7,138 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+// NEXBuy theme variables
+$primary-color: #D97757;
+$dark-bg: #21201E;
+
+// Claude-exact Toastr styling
+.toast-container {
+  .ngx-toastr {
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    padding: 16px 40px 16px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: $dark-bg;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    max-width: 360px;
+    position: relative; // Ensure positioning context for close button
+    width: 100%; // Full width within container
+    display: flex; // Use flexbox for layout
+    flex-direction: column; // Stack content vertically
+    
+    // Remove all icon styles
+    &::before {
+      display: none !important;
+    }
+
+    // Additional rules to ensure all icons are removed
+    .toast-icon {
+      display: none !important;
+    }
+
+    // Ensure no paddings are applied for icons
+    &:not(:has(.toast-title)) {
+      padding-left: 16px;
+    }
+    
+    // Wrapper for toast content to handle layout
+    .toast-content-wrapper {
+      padding-right: 28px; // Make space for close button
+      word-break: break-word; // Prevent text overflow
+    }
+    
+    // Toast title styling
+    .toast-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+    
+    // Toast message styling
+    .toast-message {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.85);
+      overflow-wrap: break-word; // Ensure long words break
+    }
+
+    // Position close button
+    .toast-close-button {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+      position: absolute; // Take out of flow
+      right: 8px;
+      top: 50%; // Center vertically
+      transform: translateY(-50%); // Adjust for perfect centering
+      text-shadow: none;
+      
+      &:hover {
+        opacity: 1;
+        color: #ffffff;
+      }
+    }
+  }
+  
+  // Success toast variant
+  .toast-success {
+    background-image: none !important; // Remove background image
+    border-left: 4px solid $primary-color;
+    padding-left: 14px;
+  }
+  
+  // Error toast variant
+  .toast-error {
+    background-image: none !important; // Remove background image
+    border-left: 4px solid #F43F5E;
+    padding-left: 14px;
+  }
+  
+  // Info toast variant
+  .toast-info {
+    background-image: none !important; // Remove background image
+    border-left: 4px solid $primary-color;
+    padding-left: 14px;
+  }
+  
+  // Warning toast variant
+  .toast-warning {
+    background-image: none !important; // Remove background image
+    border-left: 4px solid #FFC107;
+    padding-left: 14px;
+  }
+}
+
+// Progress bar styling
+.toast-progress {
+  background-color: rgba(217, 119, 87, 0.5);
+  height: 3px;
+  bottom: 0;
+  opacity: 0.7;
+}
+
+// Media queries for responsiveness
+@media screen and (max-width: 480px) {
+  .toast-container {
+    .ngx-toastr {
+      max-width: 100%;
+      width: calc(100% - 32px); // Account for container padding
+      margin: 0 auto;
+      font-size: 14px;
+      
+      .toast-title {
+        font-size: 14px;
+      }
+      
+      .toast-message {
+        font-size: 13px;
+      }
+    }
+  }
 }
 

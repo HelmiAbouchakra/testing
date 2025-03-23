@@ -6,8 +6,27 @@
   [attr.aria-label]="effectiveAriaLabel"
   (click)="onClick($event)"
   class="custom-button"
-  [ngClass]="{'loading': loading, 'disabled': disabled || loading}">
-    
-  <span *ngIf="loading" class="spinner"></span>
-  <span [ngClass]="{'visually-hidden': loading}">{{ text }}</span>
+  [class.link-style]="linkStyle"
+  [ngClass]="{ loading: loading, disabled: disabled || loading }"
+>
+  <!-- Icon on left if specified -->
+  <img
+    *ngIf="iconSrc && iconPosition === 'left'"
+    [src]="iconSrc"
+    class="button-icon left-icon"
+    alt=""
+  />
+
+  <div class="text-container">
+    <span *ngIf="loading" class="spinner" aria-hidden="true"></span>
+    <span [ngClass]="{ 'visually-hidden': loading }">{{ text }}</span>
+  </div>
+
+  <!-- Icon on right if specified -->
+  <img
+    *ngIf="iconSrc && iconPosition === 'right'"
+    [src]="iconSrc"
+    class="button-icon right-icon"
+    alt=""
+  />
 </button>
