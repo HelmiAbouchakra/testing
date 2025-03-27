@@ -31,6 +31,7 @@ export class CustomButtonComponent implements OnChanges {
   @Input() loading: boolean = false;
   @Input() iconSrc?: string; // Path to icon
   @Input() iconPosition: 'left' | 'right' = 'left';
+  @Input() iconAlignment: 'start' | 'adjacent' = 'adjacent'; // Controls if icon is at start of button or adjacent to text
   @Input() linkStyle: boolean = false; // New input for link-style buttons
 
   @Output() buttonClick = new EventEmitter<void>();

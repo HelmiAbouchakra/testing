@@ -1,230 +1,160 @@
+@use "sass:color";
+
+/* Variables */
+$text-color: #fff;
+$primary-color: #d97757;
+$secondary-color: #c36b4e;
+$error-color: #ef4444;
+$background-color: #3d3d3a;
+$lighter-text: #8f8d85;
+
+/* Register container */
 .register-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f5f5f5;
-}
-
-.register-card {
+  flex-direction: column;
   width: 100%;
-  max-width: 450px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  gap: 1rem;
 }
 
-mat-card-header {
-  margin-bottom: 20px;
-}
-
-mat-card-title {
-  font-size: 24px;
-  font-weight: 500;
-  color: #333;
-}
-
-// Step indicator styles
-.step-indicator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 30px;
-  
-  .step {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    color: #757575;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    
-    &.active {
-      background-color: #3f51b5;
-      color: white;
-    }
-  }
-  
-  .step-line {
-    flex: 1;
-    height: 2px;
-    background-color: #e0e0e0;
-    margin: 0 10px;
-    position: relative;
-    
-    &:after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      background-color: #3f51b5;
-      width: 0;
-      transition: width 0.3s ease;
-    }
-  }
-}
-
-// When step 2 is active, fill the connecting line
-:host .step-indicator .step:nth-child(3).active ~ .step-line:after {
-  width: 100%;
-}
-
-.step-content {
-  min-height: 280px;
+/* Form */
+form {
   display: flex;
   flex-direction: column;
-}
-
-.form-field {
-  margin-bottom: 16px;
-}
-
-.full-width {
   width: 100%;
+  gap: 1rem;
 }
 
-.form-actions {
-  margin-top: 24px;
-  margin-bottom: 16px;
-  
-  .button-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    
-    .back-button {
-      flex: 1;
-    }
-    
-    .register-button {
-      flex: 2;
-    }
-  }
+/* Step content */
+.step-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
 }
 
-.additional-options {
-  margin-top: 24px;
-  text-align: center;
-}
 
-/* Social Login Styles */
+/* Social Login */
 .social-login {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.social-login-text {
-  position: relative;
-  margin-bottom: 16px;
-  
-  span {
-    background-color: white;
-    padding: 0 10px;
-    position: relative;
-    z-index: 1;
-    color: #757575;
-    font-size: 14px;
-  }
-  
-  &:before {
-    content: "";
-    display: block;
-    height: 1px;
-    background-color: #e0e0e0;
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    z-index: 0;
-  }
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
 }
 
 .social-buttons {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  
-  button {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px 0;
-    border-radius: 4px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    
-    .social-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: 8px;
-    }
-  }
-  
-  .google-btn {
-    background-color: white;
-    color: #757575;
-    border: 1px solid #e0e0e0;
-    
-    &:hover {
-      background-color: #f5f5f5;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    }
-  }
-  
-  .facebook-btn {
-    background-color: #4267B2;
-    color: white;
-    
-    &:hover {
-      background-color: #365899;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    }
-  }
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
 }
 
-mat-divider {
-  margin: 16px 0;
-}
+.social-login-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
 
-.login-link {
-  margin-top: 16px;
-  
   span {
-    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $background-color;
+    font-size: 0.875rem;
+    padding: 0 0.75rem;
+    position: relative;
+    z-index: 1;
   }
+
+  &:before,
+  &:after {
+    content: "";
+    display: flex;
+    flex-grow: 1;
+    height: 1px;
+    background-color: $lighter-text;
+  }
+}
+
+/* Terms and Services Agreement */
+.terms-agreement {
+  display: flex;
+  width: 100%;
   
-  a {
-    color: #3f51b5;
-    text-decoration: none;
-    font-weight: 500;
+  .checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    
+    input[type="checkbox"] {
+      accent-color: $primary-color;
+      margin-top: 0.25rem;
+      cursor: pointer;
+    }
+    
+    label {
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 0.875rem;
+      color: $lighter-text;
+      line-height: 1.4;
+      gap: 0 0.25rem;
+    }
+    
+    .terms-link {
+      color: $primary-color;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 }
 
-/* For the loading spinner */
-mat-spinner {
-  display: inline-block;
-  margin-right: 8px;
+/* Email display in step 2 */
+.email-display {
+  display: flex;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba($primary-color, 0.1);
+  border-radius: 0.5rem;
+  
+  p {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0;
+    font-size: 0.875rem;
+    color: $background-color;
+    gap: 0.25rem;
+    
+    span {
+      font-weight: 600;
+      color: $primary-color;
+    }
+  }
 }
 
-/* Error styles */
-.error-snackbar {
-  background-color: #f44336;
-  color: white;
-}
+/* Auth Links - Login section */
+.auth-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 0.5rem;
 
-.success-snackbar {
-  background-color: #4caf50;
-  color: white;
-}
+  p {
+    display: flex;
+    color: $lighter-text;
+    font-size: 0.9rem;
+    margin: 0;
+  }
 
-.password-mismatch-error {
-  color: #f44336;
-  font-size: 12px;
-  margin-top: 4px;
-  margin-left: 16px;
+
+  @media (max-width: 320px) {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
 }

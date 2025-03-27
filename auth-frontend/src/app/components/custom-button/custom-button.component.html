@@ -7,6 +7,8 @@
   (click)="onClick($event)"
   class="custom-button"
   [class.link-style]="linkStyle"
+  [class.icon-start]="iconAlignment === 'start'"
+  [class.icon-adjacent]="iconAlignment === 'adjacent'"
   [ngClass]="{ loading: loading, disabled: disabled || loading }"
 >
   <!-- Icon on left if specified -->
@@ -17,10 +19,9 @@
     alt=""
   />
 
-  <div class="text-container">
-    <span *ngIf="loading" class="spinner" aria-hidden="true"></span>
-    <span [ngClass]="{ 'visually-hidden': loading }">{{ text }}</span>
-  </div>
+  <!-- Simple text container -->
+  <span *ngIf="loading" class="spinner" aria-hidden="true"></span>
+  <span [ngClass]="{ 'visually-hidden': loading }">{{ text }}</span>
 
   <!-- Icon on right if specified -->
   <img

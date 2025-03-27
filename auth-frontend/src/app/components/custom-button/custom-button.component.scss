@@ -13,11 +13,11 @@
   position: relative;
   background-color: var(--background-color);
   color: var(--text-color);
-  min-width: 100px;
-  min-height: 38px;
+  min-width: 50px;
+  min-height: 16px;
   line-height: 1.2;
   text-align: center;
-  gap: 8px;
+  gap: 4px; /* Default gap between elements */
 
   /* Enhanced flex properties */
   flex-wrap: nowrap;
@@ -47,6 +47,38 @@
     cursor: wait;
   }
 
+  /* Icon alignment styles */
+  &.icon-adjacent {
+    justify-content: center;
+    
+    .left-icon {
+      margin-right: 4px;
+    }
+    
+    .right-icon {
+      margin-left: 4px;
+    }
+  }
+  
+  &.icon-start {
+    justify-content: flex-start;
+    
+    .left-icon {
+      margin-right: 8px;
+    }
+    
+    .right-icon {
+      margin-left: auto;
+      margin-right: 0;
+    }
+    
+    /* When icon is at start, add more space for text */
+    span:not(.spinner) {
+      flex-grow: 1;
+      text-align: center;
+    }
+  }
+
   /* Link style buttons - for Send reset code and Sign up */
   &.link-style {
     padding: 0;
@@ -56,7 +88,7 @@
 
     span {
       font-size: 0.9rem;
-      font-weight: normal;
+      font-weight: 700;
       white-space: normal;
       word-break: break-word;
     }
@@ -110,26 +142,11 @@ span {
 }
 
 .left-icon {
-  margin-right: 8px;
+  margin-right: 4px;
 }
 
 .right-icon {
-  margin-left: 8px;
-}
-
-/* Add this to center the text while keeping icons aligned */
-.custom-button {
-  position: relative;
-  
-  img.left-icon {
-    position: absolute;
-    left: 10px;
-  }
-  
-  img.right-icon {
-    position: absolute;
-    right: 10px;
-  }
+  margin-left: 4px;
 }
 
 /* Text container styling */

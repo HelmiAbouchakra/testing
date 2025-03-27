@@ -1,116 +1,134 @@
-<div class="register-container">
-  <mat-card class="register-card">
-    <mat-card-header>
-      <mat-card-title>Create an Account</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="registerForm">
-        <!-- Step indicator -->
-        <div class="step-indicator">
-          <div class="step" [ngClass]="{'active': currentStep >= 1}">1</div>
-          <div class="step-line"></div>
-          <div class="step" [ngClass]="{'active': currentStep >= 2}">2</div>
-        </div>
+<app-wrapper [width]="'400px'" [transparentBg]="false" [center]="true">
+  <div class="register-container">
+    <!-- Social Login Buttons - Only show when appropriate -->
+    <div class="social-login" *ngIf="showSocialButtons">
+      <div class="social-buttons">
+        <app-custom-button
+          [text]="'Sign up with Google'"
+          [backgroundColor]="'#f5f5f5'"
+          [textColor]="'#333333'"
+          [hoverColor]="'#e8e8e8'"
+          [iconSrc]="'assets/images/google-icon.svg'"
+          [iconPosition]="'left'"
+          [iconAlignment]="'start'"
+          (buttonClick)="registerWithSocial('google')"
+        ></app-custom-button>
         
-        <!-- Step 1: Name and Email -->
-        <div class="step-content" *ngIf="currentStep === 1">
-          <div class="form-field">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Full Name</mat-label>
-              <input matInput formControlName="name" placeholder="Enter your full name" required>
-              <mat-error *ngIf="f['name'].errors?.['required']">Name is required</mat-error>
-              <mat-error *ngIf="f['name'].errors?.['minlength']">Name must be at least 3 characters</mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-field">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
-              <input matInput formControlName="email" placeholder="Enter your email" required>
-              <mat-progress-spinner *ngIf="f['email'].pending" matSuffix diameter="20" mode="indeterminate"></mat-progress-spinner>
-              <mat-error *ngIf="f['email'].errors?.['required']">Email is required</mat-error>
-              <mat-error *ngIf="f['email'].errors?.['email']">Please enter a valid email address</mat-error>
-              <mat-error *ngIf="f['email'].errors?.['invalidEmail']">This email appears to be invalid or not deliverable</mat-error>
-              <mat-error *ngIf="f['email'].errors?.['disposableEmail']">Please use a permanent email address, not a temporary one</mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-actions">
-            <button mat-raised-button color="primary" type="button" (click)="nextStep()" class="full-width">
-              Continue
-            </button>
-          </div>
-        </div>
-        
-        <!-- Step 2: Password and Confirmation -->
-        <div class="step-content" *ngIf="currentStep === 2">
-          <div class="form-field">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
-              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Enter your password" required>
-              <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-              </button>
-              <mat-error *ngIf="f['password'].errors?.['required']">Password is required</mat-error>
-              <mat-error *ngIf="f['password'].errors?.['minlength']">Password must be at least 8 characters</mat-error>
-              <mat-error *ngIf="f['password'].errors?.['passwordStrength']">
-                Password must include uppercase, lowercase, number, and special character
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-field">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Confirm Password</mat-label>
-              <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="password_confirmation" placeholder="Confirm your password" required>
-              <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
-                <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-              </button>
-              <mat-error *ngIf="f['password_confirmation'].errors?.['required']">Confirm password is required</mat-error>
-            </mat-form-field>
-            <div class="password-mismatch-error" *ngIf="registerForm.errors?.['passwordMismatch'] && (registerForm.touched || registerForm.dirty)">
-              Passwords do not match
-            </div>
-          </div>
-          
-          <div class="form-actions">
-            <div class="button-row">
-              <button mat-stroked-button type="button" (click)="previousStep()" class="back-button">
-                Back
-              </button>
-              <button mat-raised-button color="primary" type="button" (click)="onSubmit()" [disabled]="registerForm.invalid || loading" class="register-button">
-                <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-                <span *ngIf="!loading">Register</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </form>
-      
-      <!-- Social Login Buttons - Only show when appropriate -->
-      <div class="social-login" *ngIf="showSocialButtons">
-        <div class="social-login-text">
-          <span>Or register with</span>
-        </div>
-        <div class="social-buttons">
-          <button mat-raised-button class="google-btn" (click)="registerWithSocial('google')" type="button">
-            <img src="assets/images/google-icon.svg" alt="Google" class="social-icon">
-            Google
-          </button>
-          <button mat-raised-button class="facebook-btn" (click)="registerWithSocial('facebook')" type="button">
-            <img src="assets/images/facebook-icon.svg" alt="Facebook" class="social-icon">
-            Facebook
-          </button>
-        </div>
+        <app-custom-button
+          [text]="'Sign up with Facebook'"
+          [backgroundColor]="'#f5f5f5'"
+          [textColor]="'#333333'"
+          [hoverColor]="'#e8e8e8'"
+          [iconSrc]="'assets/images/facebook-icon.svg'"
+          [iconPosition]="'left'"
+          [iconAlignment]="'start'"
+          (buttonClick)="registerWithSocial('facebook')"
+        ></app-custom-button>
       </div>
       
-      <div class="additional-options">
-        <mat-divider></mat-divider>
-        <div class="login-link">
-          <span>Already have an account?</span>
-          <a routerLink="/auth/login">Login</a>
-        </div>
+      <!-- Or register with text -->
+      <div class="social-login-text">
+        <span>or</span>
       </div>
-    </mat-card-content>
-  </mat-card>
-</div>
+    </div>
+    
+    <form [formGroup]="registerForm">
+      <!-- Step 1: Name and Email -->
+      <div class="step-content" *ngIf="currentStep === 1">
+  
+          <app-custom-input
+            type="text"
+            placeholder="Enter your full name"
+            [value]="name"
+            (valueChange)="onNameChange($event)"
+            [borderColor]="f['name'].invalid && f['name'].touched ? '#f44336' : '#ccc'"
+          ></app-custom-input>
+
+          <app-custom-input
+            type="email"
+            placeholder="Enter your email"
+            [value]="email"
+            (valueChange)="onEmailChange($event)"
+            [borderColor]="f['email'].invalid && f['email'].touched ? '#f44336' : '#ccc'"
+          ></app-custom-input>
+        
+        <!-- Terms and Services Agreement -->
+        <div class="terms-agreement">
+          <div class="checkbox-container">
+            <input type="checkbox" id="termsCheckbox" [checked]="termsAccepted" (change)="onTermsChange($event)">
+            <label for="termsCheckbox">
+              By signing up you agree to the 
+              <a href="/terms" class="terms-link">terms and services</a>&nbsp;and the 
+              <a href="/privacy" class="terms-link">privacy policy</a>.
+            </label>
+          </div>
+        </div>
+
+          <app-custom-button
+            [text]="'Continue'"
+            [backgroundColor]="'#D97757'"
+            [textColor]="'#fff'"
+            [hoverColor]="'#C36B4E'"
+            [disabled]="f['name'].invalid || f['email'].invalid || !termsAccepted"
+            (buttonClick)="nextStep()"
+          ></app-custom-button>
+      </div>
+      
+      <!-- Step 2: Password and Confirmation -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <!-- Display email from step 1 -->
+        <div class="email-display">
+          <p>Creating account for: <span>{{ email }}</span></p>
+        </div>
+          <app-custom-input
+            type="password"
+            placeholder="Enter your password"
+            [value]="password"
+            (valueChange)="onPasswordChange($event)"
+            [borderColor]="f['password'].invalid && f['password'].touched ? '#f44336' : '#ccc'"
+          ></app-custom-input>
+  
+          <app-custom-input
+            type="password"
+            placeholder="Confirm your password"
+            [value]="password_confirmation"
+            (valueChange)="onPasswordConfirmationChange($event)"
+            [borderColor]="(f['password_confirmation'].invalid && f['password_confirmation'].touched) || 
+                          (registerForm.errors?.['passwordMismatch'] && registerForm.touched) ? '#f44336' : '#ccc'"
+          ></app-custom-input>
+        
+            <app-custom-button
+              [text]="loading ? 'Registering...' : 'Register'"
+              [backgroundColor]="'#D97757'"
+              [textColor]="'#fff'"
+              [hoverColor]="'#C36B4E'"
+              [disabled]="registerForm.invalid || loading"
+              [loading]="loading"
+              (buttonClick)="onSubmit()"
+            ></app-custom-button>
+
+            <app-custom-button
+            [text]="'Back'"
+            [backgroundColor]="'transparent'"
+            [textColor]="'#8f8d85'"
+            [linkStyle]="true"
+            [iconSrc]="'assets/images/left-arrow.svg'"
+            [iconPosition]="'left'"
+            (buttonClick)="previousStep()"
+          ></app-custom-button>
+      </div>
+    </form>
+    
+    <!-- Login Link - Only show in step 1 -->
+    <div class="auth-links" *ngIf="currentStep === 1">
+      <p>Already have an account?</p>
+      <app-custom-button
+        [text]="'Log in'"
+        [backgroundColor]="'transparent'"
+        [textColor]="'#D97757'"
+        [linkStyle]="true"
+        (buttonClick)="router.navigate(['/auth/login'])"
+      ></app-custom-button>
+    </div>
+  </div>
+</app-wrapper>

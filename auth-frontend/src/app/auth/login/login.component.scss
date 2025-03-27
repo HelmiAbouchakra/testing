@@ -75,7 +75,7 @@ $lighter-text: #8f8d85;
   padding: 0;
 
   span {
-    color: $text-color;
+    color: $background-color;
     font-size: 0.875rem;
     padding: 0 0.75rem;
     position: relative;
@@ -106,7 +106,7 @@ $lighter-text: #8f8d85;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 0.5rem;
 
   p {
     color: $lighter-text;
