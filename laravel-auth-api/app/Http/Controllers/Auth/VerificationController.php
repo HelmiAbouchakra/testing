@@ -261,14 +261,8 @@ class VerificationController extends Controller
                     ', Stored Code: ' . $user->verification_code . 
                     ', Expires At: ' . ($user->verification_code_expires_at ? $user->verification_code_expires_at->toDateTimeString() : 'null'));
                     
-                // For debugging: Automatically send a new code
-                $code = $user->generateVerificationCode();
-                $user->sendEmailVerificationNotification();
-                \Log::info('New verification code generated: ' . $code);
-                
                 return response()->json([
-                    'message' => 'Invalid or expired verification code. A new code has been sent to your email.',
-                    'debug_code' => $code // Remove in production
+                    'message' => 'Invalid or expired verification code. Please use the resend button to get a new code.',
                 ], 422);
             }
             

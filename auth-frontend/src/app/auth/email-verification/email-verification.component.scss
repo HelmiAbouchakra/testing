@@ -1,159 +1,100 @@
-.verification-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f5f5f5;
-}
-
-.verification-card {
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-mat-card-header {
-  margin-bottom: 20px;
-}
-
-mat-card-title {
-  font-size: 24px;
-  font-weight: 500;
-  color: #333;
-}
-
-.loading-state,
-.error-message,
-.success-message {
+// Use flexbox for the entire component layout
+:host {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 20px 0;
+  width: 100%;
 }
 
-.error-message {
-  color: #f44336;
-}
-
-.success-message {
-  color: #4caf50;
-}
-
-.email-info {
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.email-verification-message {
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-
-.verification-instructions {
-  color: #666;
-  margin-bottom: 16px;
+app-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .verification-form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-bottom: 24px;
+  width: 100%;
+  gap: 0.7rem;
+}
+
+
+  
+  .email-verification-message {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    font-size: 16px;
+
+    line-height: 1.5;
+    color: #666;
+    
+    strong {
+      font-weight: 500;
+      color: #D97757;
+    }
+  }
+
+.hint-text {
+  color: #8f8d85;
+  font-size: 13px;
+  font-weight: 500;
+  // text-align: center;
+}
+
+.code-inputs-wrapper {
+  display: flex;
+  justify-content: start;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.code-inputs-container {
+  display: flex;
+  justify-content: start;
+  gap: clamp(12.2px, 2%, 8px); /* Responsive gap */
+  width: auto; /* Only take up as much space as needed */
 }
 
 .code-input {
-  width: 100%;
-  max-width: 200px;
-  margin-bottom: 16px;
-}
-
-.verify-button {
-  width: 100%;
-  max-width: 200px;
-  height: 44px;
-}
-
-.resend-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 16px 0;
-  text-align: center;
-}
-
-.resend-button {
-  margin-top: 8px;
-  min-width: 150px;
-  height: 36px;
-}
-
-.divider {
-  margin: 24px 0;
-}
-
-.logout-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.logout-button {
-  margin-top: 8px;
-}
-
-.button-spinner {
-  margin-right: 8px;
-}
-
-/* Style for the verification code input to make it more prominent */
-input[formControlName="code"] {
-  font-size: 18px;
-  letter-spacing: 4px;
-  text-align: center;
-}
-
-/* Override Angular Material styles for better code input appearance */
-:host ::ng-deep .mat-mdc-form-field-infix {
-  display: flex;
-  justify-content: center;
-}
-
-/* Custom Snackbar Styles */
-.success-snackbar {
-  background-color: #4caf50;
-  color: white;
-}
-
-.error-snackbar {
-  background-color: #f44336;
-  color: white;
-}
-
-.debug-box {
-  background-color: #fffdf0;
-  border: 2px dashed #ffc107;
+  width: clamp(40px, 14%, 48px); /* Responsive width */
+  height: clamp(40px, 14%, 48px); /* Responsive height */
   border-radius: 4px;
-  padding: 10px;
-  margin: 15px 0;
+  background-color: #e8e8e8;
+  border: 1px solid #f5f5f5;
+  color: #333;
+  font-size: clamp(16px, 5vw, 18px); /* Responsive font size */
+  text-align: center;
+  caret-color: #D97757;
   
-  p {
-    margin: 5px 0;
-    font-family: monospace;
-    
-    code {
-      background-color: #f5f5f5;
-      padding: 2px 4px;
-      border-radius: 3px;
-      font-weight: bold;
-      color: #e91e63;
-    }
+  &:focus {
+    outline: none;
+    border-color: #D97757;
+    box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.3);
   }
   
-  strong {
-    color: #f44336;
+  &::placeholder {
+    color: #666;
+  }
+}
+
+// Styles for the resend code container and countdown timer
+.resend-code-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  
+  .countdown-timer {
+    color: #8f8d85;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+  }
+
+  .countdown-timer span {
+    font-weight: 500;
   }
 }

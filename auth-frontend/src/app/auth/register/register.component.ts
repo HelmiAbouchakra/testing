@@ -1,27 +1,11 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  AsyncValidatorFn,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule, AsyncValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-import {
-  Observable,
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  of,
-  switchMap,
-} from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { CsrfService } from '../../core/services/csrf.service';
+import { CommonModule } from '@angular/common';
+import { Observable, catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 // Custom Components
 import { CustomButtonComponent } from '../../components/custom-button/custom-button.component';
@@ -51,8 +35,8 @@ export interface RegisterResponse {
     ReactiveFormsModule,
     CustomButtonComponent,
     CustomInputComponent,
-    WrapperComponent,
-  ],
+    WrapperComponent
+  ]
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
@@ -60,7 +44,7 @@ export class RegisterComponent implements OnInit {
   hidePassword = true;
   hideConfirmPassword = true;
   error: string | null = null;
-
+  
   // Multi-step form properties
   currentStep = 1;
   maxSteps = 2;
@@ -79,35 +63,28 @@ export class RegisterComponent implements OnInit {
     private csrfService: CsrfService,
     public router: Router,
     private toastr: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Initialize the registration form
-    this.registerForm = this.formBuilder.group(
-      {
-        name: ['', [Validators.required, Validators.minLength(3)]],
-        email: [
-          '',
-          {
-            validators: [Validators.required, Validators.email],
-            asyncValidators: [this.emailGlobalValidator()],
-            updateOn: 'blur',
-          },
-        ],
-        password: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(8),
-            this.passwordStrengthValidator,
-          ],
-        ],
-        password_confirmation: ['', Validators.required],
-      },
-      {
-        validators: this.passwordMatchValidator,
-      }
-    );
+    this.registerForm = this.formBuilder.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', 
+        {
+          validators: [Validators.required, Validators.email],
+          asyncValidators: [this.emailGlobalValidator()],
+          updateOn: 'blur'
+        }
+      ],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(8),
+        this.passwordStrengthValidator
+      ]],
+      password_confirmation: ['', Validators.required]
+    }, {
+      validators: this.passwordMatchValidator
+    });
 
     // Get CSRF token on component initialization
     this.csrfService.getCsrfToken().subscribe();
@@ -122,9 +99,7 @@ export class RegisterComponent implements OnInit {
   }
 
   // Convenience getter for easy access to form fields
-  get f() {
-    return this.registerForm.controls;
-  }
+  get f() { return this.registerForm.controls; }
 
   // Update form values when custom inputs change
   onNameChange(value: string): void {
@@ -146,7 +121,7 @@ export class RegisterComponent implements OnInit {
     this.password_confirmation = value;
     this.f['password_confirmation'].setValue(value);
   }
-
+  
   onTermsChange(event: any) {
     this.termsAccepted = event.target.checked;
   }
@@ -154,7 +129,7 @@ export class RegisterComponent implements OnInit {
   // Password strength validator
   passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
     const value: string = control.value || '';
-
+    
     if (!value) {
       return null;
     }
@@ -163,10 +138,9 @@ export class RegisterComponent implements OnInit {
     const hasLowerCase = /[a-z]/.test(value);
     const hasNumeric = /[0-9]/.test(value);
     const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value);
-
-    const passwordValid =
-      hasUpperCase && hasLowerCase && hasNumeric && hasSpecial;
-
+    
+    const passwordValid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecial;
+    
     return !passwordValid ? { passwordStrength: true } : null;
   }
 
@@ -174,11 +148,11 @@ export class RegisterComponent implements OnInit {
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password')?.value;
     const confirmPassword = control.get('password_confirmation')?.value;
-
+    
     if (password !== confirmPassword) {
       return { passwordMismatch: true };
     }
-
+    
     return null;
   }
 
@@ -186,29 +160,29 @@ export class RegisterComponent implements OnInit {
   emailGlobalValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
       const email = control.value;
-
+      
       if (!email) {
         return of(null);
       }
-
+      
       return control.valueChanges.pipe(
         debounceTime(500),
         distinctUntilChanged(),
-        switchMap((email) =>
+        switchMap(email => 
           this.authService.validateEmail(email).pipe(
-            map((response) => {
+            map(response => {
               if (!response.is_valid) {
                 return { invalidEmail: true, details: response.details };
               }
-
+              
               // If it's a disposable email, we might want to reject it
               if (response.details.is_disposable) {
                 return { disposableEmail: true };
               }
-
+              
               return null;
             }),
-            catchError((error) => {
+            catchError(error => {
               console.error('Email validation error:', error);
               // Don't block the user if the API fails
               return of(null);
@@ -228,20 +202,20 @@ export class RegisterComponent implements OnInit {
           // Mark fields as touched to show validation errors
           this.f['name'].markAsTouched();
           this.f['email'].markAsTouched();
-
+          
           // Show toastr error message
           if (this.f['name'].invalid) {
             this.toastr.error('Please enter a valid name');
           } else if (this.f['email'].invalid) {
             this.toastr.error('Please enter a valid email address');
           }
-
+          
           return;
         }
       }
-
+      
       this.currentStep++;
-
+      
       // Hide social buttons when moving to password step
       if (this.currentStep === 2) {
         this.showSocialButtons = false;
@@ -253,7 +227,7 @@ export class RegisterComponent implements OnInit {
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
-
+      
       // Show social buttons when going back to step 1
       if (this.currentStep === 1) {
         this.showSocialButtons = true;
@@ -265,11 +239,11 @@ export class RegisterComponent implements OnInit {
     // Stop here if form is invalid
     if (this.registerForm.invalid) {
       // Mark all fields as touched to trigger validation display
-      Object.keys(this.f).forEach((key) => {
+      Object.keys(this.f).forEach(key => {
         const control = this.registerForm.get(key);
         control?.markAsTouched();
       });
-
+      
       this.toastr.error('Please fix the errors in the form');
       return;
     }
@@ -283,23 +257,12 @@ export class RegisterComponent implements OnInit {
         if (!response.is_valid) {
           // Email is not valid globally
           this.loading = false;
-          this.error =
-            'The email address appears to be invalid or not deliverable.';
+          this.error = 'The email address appears to be invalid or not deliverable.';
           this.toastr.error(this.error);
-
+          
           // Add validation error to the email field
-          this.f['email'].setErrors({
-            invalidEmail: true,
-            details: response.details,
-          });
+          this.f['email'].setErrors({ invalidEmail: true, details: response.details });
           return;
-        }
-
-        // If the email is disposable, show a warning but allow registration
-        if (response.details.is_disposable) {
-          this.toastr.warning(
-            'You are using a temporary email address. You may not receive important notifications.'
-          );
         }
 
         // Proceed with registration if email is valid
@@ -309,7 +272,7 @@ export class RegisterComponent implements OnInit {
         console.error('Email validation error:', error);
         // Continue with registration even if validation fails
         this.registerUser();
-      },
+      }
     });
   }
 
@@ -320,75 +283,63 @@ export class RegisterComponent implements OnInit {
 
     // Add a delay to show the spinner for longer (3 seconds)
     setTimeout(() => {
-      this.authService
-        .register({
-          name: this.f['name'].value,
-          email: this.f['email'].value,
-          password: this.f['password'].value,
-          password_confirmation: this.f['password_confirmation'].value,
-        })
-        .subscribe({
-          next: (response) => {
-            // Add another delay before processing the response
-            setTimeout(() => {
-              this.loading = false;
-              console.log(
-                'Registration successful, redirecting to verification page immediately'
-              );
-
-              // Set flags to indicate registration just happened
-              localStorage.setItem('just_registered', 'true');
-              localStorage.setItem('registered_email', this.f['email'].value);
-              localStorage.setItem('stay_on_verification', 'true'); // Add flag to prevent redirects
-
-              // Store verification code for debugging if it's provided in the response
-              if (response.verification_code) {
-                localStorage.setItem(
-                  'debug_verification_code',
-                  response.verification_code
-                );
-                console.log(
-                  'Debug verification code stored:',
-                  response.verification_code
-                );
-              }
-
-              // Show success message
-              this.toastr.success(
-                'Registration successful! Please verify your email.'
-              );
-
-              // Set flag to DISABLE automatic email sending when the verification page loads
-              localStorage.setItem('verification_email_already_sent', 'true');
-
-              // We don't need to explicitly request another verification email here
-              // The backend already sent one during registration
-              // Just navigate to the verification page
-              window.location.href = '/verify-email';
-            }, 2000); // 2 second delay after receiving response
-          },
-          error: (error) => {
-            // Add delay before showing error
-            setTimeout(() => {
-              console.error('Registration failed:', error);
-              this.loading = false;
-
-              if (typeof error.error === 'string') {
-                this.error = error.error;
-                this.toastr.error(error.error);
-              } else if (error.error?.message) {
-                this.error = error.error.message;
-                this.toastr.error(error.error.message);
-              } else if (error.message) {
-                this.error = error.message;
-                this.toastr.error(error.message);
-              } else {
-                this.error = 'Registration failed. Please try again.';
-                this.toastr.error(this.error);
-              }
-            }, 2000); // 2 second delay before showing error
-          },
-        });
+      this.authService.register({
+        name: this.f['name'].value,
+        email: this.f['email'].value,
+        password: this.f['password'].value,
+        password_confirmation: this.f['password_confirmation'].value
+      }).subscribe({
+        next: (response) => {
+          // Add another delay before processing the response
+          setTimeout(() => {
+            this.loading = false;
+            console.log('Registration successful, redirecting to verification page immediately');
+            
+            // Set flags to indicate registration just happened
+            localStorage.setItem('just_registered', 'true');
+            localStorage.setItem('registered_email', this.f['email'].value);
+            localStorage.setItem('stay_on_verification', 'true'); // Add flag to prevent redirects
+            
+            // Store verification code for debugging if it's provided in the response
+            if (response.verification_code) {
+              localStorage.setItem('debug_verification_code', response.verification_code);
+              console.log('Debug verification code stored:', response.verification_code);
+            }
+            
+            // Show success message
+            this.toastr.success('Registration successful! Please verify your email.');
+            
+            // Set flag to DISABLE automatic email sending when the verification page loads
+            localStorage.setItem('verification_email_already_sent', 'true');
+            
+            // We don't need to explicitly request another verification email here
+            // The backend already sent one during registration
+            // Just navigate to the verification page
+            window.location.href = '/verify-email';
+          }, 2000); // 2 second delay after receiving response
+        },
+        error: (error) => {
+          // Add delay before showing error
+          setTimeout(() => {
+            console.error('Registration failed:', error);
+            this.loading = false;
+            
+            if (typeof error.error === 'string') {
+              this.error = error.error;
+              this.toastr.error(error.error);
+            } else if (error.error?.message) {
+              this.error = error.error.message;
+              this.toastr.error(error.error.message);
+            } else if (error.message) {
+              this.error = error.message;
+              this.toastr.error(error.message);
+            } else {
+              this.error = 'Registration failed. Please try again.';
+              this.toastr.error(this.error);
+            }
+          }, 2000); // 2 second delay before showing error
+        }
+      });
     }, 3000); // 3 second delay before sending request
   }
 

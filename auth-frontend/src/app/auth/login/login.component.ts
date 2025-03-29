@@ -147,7 +147,6 @@ export class LoginComponent implements OnInit, OnDestroy {
                 queryParams: { returnUrl: this.returnUrl },
               });
             } else if (response.user && !response.user.email_verified_at) {
-              this.toastr.warning('Please verify your email address');
               this.router.navigate(['/verify-email']);
             } else {
               this.loginSuccess = true;

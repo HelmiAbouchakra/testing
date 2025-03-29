@@ -1,87 +1,108 @@
-<div class="verification-container">
-    <mat-card class="verification-card">
-      <mat-card-header>
-        <mat-card-title>Email Verification</mat-card-title>
-      </mat-card-header>
+<app-wrapper [width]="'400px'" [center]="true" [hasBackground]="true">
+  <!-- Verification Code Form -->
+  <form
+    [formGroup]="verifyForm"
+    (ngSubmit)="submitVerificationCode()"
+    class="verification-form"
+  >
+
+  <p class="email-verification-message">
+    To create an account, enter the code sent to
+    <strong>{{ email || userEmail }}</strong>
+  </p>
+    <!-- Code inputs -->
+    <div class="code-inputs-wrapper">
+      <div class="code-inputs-container">
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          #codeInput1
+          (input)="onDigitInput($event, 0, codeInput2)"
+          (keydown)="onKeyDown($event, 0, null, codeInput2)"
+        >
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          #codeInput2
+          (input)="onDigitInput($event, 1, codeInput3)"
+          (keydown)="onKeyDown($event, 1, codeInput1, codeInput3)"
+        >
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          #codeInput3
+          (input)="onDigitInput($event, 2, codeInput4)"
+          (keydown)="onKeyDown($event, 2, codeInput2, codeInput4)"
+        >
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          #codeInput4
+          (input)="onDigitInput($event, 3, codeInput5)"
+          (keydown)="onKeyDown($event, 3, codeInput3, codeInput5)"
+        >
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          #codeInput5
+          (input)="onDigitInput($event, 4, codeInput6)"
+          (keydown)="onKeyDown($event, 4, codeInput4, codeInput6)"
+        >
+        <input 
+          type="text" 
+          maxlength="1" 
+          class="code-input" 
+          #codeInput6
+          (input)="onDigitInput($event, 5, null)"
+          (keydown)="onKeyDown($event, 5, codeInput5, null)"
+        >
+      </div>
+    </div>
+
+    <!-- Create account button -->
+    <app-custom-button
+      [text]="loading ? 'Verifying...' : 'Create account'"
+      [backgroundColor]="'#D97757'"
+      [textColor]="'#fff'"
+      [hoverColor]="'#C36B4E'"
+      [type]="'submit'"
+      [disabled]="verifyForm.invalid || loading"
+      [loading]="loading"
+    ></app-custom-button>
+
+    <!-- Hint text -->
+    <p class="hint-text">Check your spam folder if you can't find it in your inbox.</p>
+    
+    <!-- Resend Code Button with Countdown Timer -->
+    <div class="resend-code-container">
+      <app-custom-button
+        *ngIf="canResendCode"
+        [text]="resendLoading ? 'Sending...' : 'Resend verification code'"
+        [backgroundColor]="'transparent'"
+        [textColor]="'#D97757'"
+        [linkStyle]="true"
+        [disabled]="resendLoading"
+        [loading]="resendLoading"
+        (buttonClick)="resendVerificationCode()"
+      ></app-custom-button>
       
-      <mat-card-content>
-        <!-- Loading state -->
-        <div *ngIf="loading" class="loading-state">
-          <mat-spinner diameter="50"></mat-spinner>
-          <p>Please wait...</p>
-        </div>
-        
-        <!-- Error message -->
-        <div *ngIf="error && !loading" class="error-message">
-          <mat-icon color="warn">error</mat-icon>
-          <p>{{ error }}</p>
-        </div>
-        
-        <!-- Success state (verified) -->
-        <div *ngIf="verified && !loading" class="success-message">
-          <mat-icon color="primary">check_circle</mat-icon>
-          <h3>Email Verified Successfully!</h3>
-          <p>Your email has been verified. You will be redirected to the dashboard.</p>
-        </div>
-        
-        <!-- Unverified state with instructions -->
-        <div *ngIf="!verified && !loading">
-          <div class="email-info">
-            <p class="email-verification-message">
-              We've sent a verification code to <strong>{{ email || userEmail }}</strong>
-            </p>
-            <p class="verification-instructions">
-              Please check your email and enter the 6-digit verification code below.
-            </p>
-            <!-- Debug info removed -->
-          </div>
-          
-          <!-- Verification Code Form -->
-          <form [formGroup]="verifyForm" (ngSubmit)="submitVerificationCode()" class="verification-form">
-            <mat-form-field appearance="outline" class="code-input">
-              <mat-label>Verification Code</mat-label>
-              <input matInput formControlName="code" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]*">
-              <mat-hint>Enter the 6-digit code from your email</mat-hint>
-              <mat-error *ngIf="f['code'].errors?.['required']">Code is required</mat-error>
-              <mat-error *ngIf="f['code'].errors?.['minlength'] || f['code'].errors?.['maxlength']">Code must be 6 digits</mat-error>
-              <mat-error *ngIf="f['code'].errors?.['pattern']">Code must contain only numbers</mat-error>
-            </mat-form-field>
-            
-            <button 
-              mat-raised-button 
-              color="primary" 
-              type="submit" 
-              [disabled]="verifyForm.invalid || loading"
-              class="verify-button"
-            >
-              <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
-              <span *ngIf="!loading">Verify Email</span>
-            </button>
-          </form>
-          
-          <div class="resend-section">
-            <p>Didn't receive the code?</p>
-            <button 
-              mat-stroked-button 
-              color="primary" 
-              (click)="resendVerificationEmail()" 
-              [disabled]="loading || emailSent"
-              class="resend-button"
-            >
-              <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
-              <span *ngIf="!loading">{{ emailSent ? 'Code Sent' : 'Resend Code' }}</span>
-            </button>
-          </div>
-          
-          <mat-divider class="divider"></mat-divider>
-          
-          <div class="logout-section">
-            <p>Want to use a different account?</p>
-            <button mat-stroked-button (click)="logout()" class="logout-button">
-              Logout
-            </button>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+      <div *ngIf="!canResendCode" class="countdown-timer">
+        <span>Resend code in: {{ formatCountdown() }}</span>
+      </div>
+    </div>
+    <app-custom-button
+    [text]="'Back'"
+    [backgroundColor]="'transparent'"
+    [textColor]="'#8f8d85'"
+    [linkStyle]="true"
+    [iconSrc]="'assets/images/left-arrow.svg'"
+    [iconPosition]="'left'"
+    (buttonClick)="navigateToLogin()"
+  ></app-custom-button>
+  </form>
+</app-wrapper>
