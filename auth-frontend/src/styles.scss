@@ -2,11 +2,18 @@
 @use "ngx-toastr/toastr" as toastr;
 @import url("https://fonts.googleapis.com/css2?family=Monomaniac+One&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
 
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", serif;
+  // padding-top: 92px; /* Account for fixed navbar (60px height + 16px padding top + 16px padding bottom) */
+}
+
 * {
+  box-sizing: border-box;
   font-family: "Open Sans", serif;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 // NEXBuy theme variables
@@ -141,4 +148,3 @@ $dark-bg: #21201E;
     }
   }
 }
-

@@ -118,6 +118,7 @@ export class AuthService {
       .pipe(
         tap((user) => {
           console.log('Auth check successful, user authenticated:', user);
+          console.log('User role from backend:', user.role);
           this.authStateSubject.next({
             isAuthenticated: true,
             user,
@@ -167,6 +168,8 @@ export class AuthService {
       .pipe(
         tap((response) => {
           console.log('Login response:', response);
+          console.log('User data from login:', response.user);
+          console.log('User role from login:', response.user?.role);
           if (response.requires_mfa) {
             this.authStateSubject.next({
               ...this.authStateSubject.value,
@@ -499,6 +502,23 @@ export class AuthService {
           Accept: 'application/json',
         },
       }
+    );
+  }
+
+  /**
+   * Check the current user's role directly from the backend
+   */
+  checkRole(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/v1/auth/check-role`, {
+      withCredentials: true,
+    }).pipe(
+      tap((response) => {
+        console.log('Role check response:', response);
+      }),
+      catchError((error) => {
+        console.error('Error checking role:', error);
+        return throwError(() => error);
+      })
     );
   }
 

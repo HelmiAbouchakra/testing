@@ -20,13 +20,19 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule),
-    canActivate: [AuthGuard, VerifiedEmailGuard]
+    loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
+    // Removed AuthGuard and VerifiedEmailGuard to allow public access
   },
   {
     path: 'profile',
     loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule),
     canActivate: [AuthGuard, VerifiedEmailGuard]
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
+    canActivate: [AuthGuard, VerifiedEmailGuard]
+    // Removed adminGuard to avoid double-checking
   },
   {
     path: 'secure',

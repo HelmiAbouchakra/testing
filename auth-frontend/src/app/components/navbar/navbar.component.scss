@@ -1,0 +1,360 @@
+.navbar-sapcing {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  // background-color: red;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9; /* White background */
+  // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Light shadow */
+  position: sticky;
+  z-index: 1000;
+  width: 1280px;
+  height: 60px;
+  border-radius: 8px; /* Rounded corners */
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+}
+
+/* Logo section */
+.logo-section {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 100%;
+}
+
+.app-logo {
+  height: 64px; /* Smaller logo */
+  width: 64px;
+}
+
+/* Navigation links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px; /* Using gap for spacing between items */
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333333; /* Dark gray text */
+  font-weight: 400;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  border-radius: 0;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    background-color: transparent;
+    color: #007bff; /* Blue accent color on hover */
+  }
+  
+  &.active {
+    color: #007bff; /* Blue accent color for active */
+    background-color: transparent;
+    font-weight: 500;
+  }
+}
+
+/* Dropdown styling */
+.dropdown {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  
+  &:hover .dropdown-menu {
+    display: block;
+  }
+}
+
+.dropdown-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #333333; /* Dark gray text */
+  font-size: 14px;
+  border-radius: 0;
+  transition: color 0.2s ease;
+  height: 100%;
+  
+  &:hover {
+    background-color: transparent;
+    color: #007bff; /* Blue accent color on hover */
+  }
+}
+
+.dropdown-arrow {
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.dropdown:hover .dropdown-arrow {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: -35px;
+  background-color: #f9f9f9; /* White background */
+  border-radius: 4px;
+  // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 12px 12px;
+  min-width: 180px;
+  z-index: 1000;
+  display: none; 
+  border: 1px solid #f9f9f9; /* Light border */
+  padding: 8px;
+  
+  &.show {
+    display: block;
+  }
+  
+  &.user-dropdown-menu {
+    top: 100%;
+    right: -41px;
+    left: auto;
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 8px;
+  height: 40px; /* Fixed height instead of padding */
+  color: #333333; /* Dark gray text */
+  text-decoration: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  
+  &:hover {
+    background-color: #f8f9fa; /* Very light gray background on hover */
+    color: #007bff; /* Blue accent color on hover */
+  }
+}
+
+.dropdown-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.8;
+}
+
+.dropdown-item:hover .dropdown-icon {
+  opacity: 1;
+}
+
+.dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background-color: transparent;
+}
+
+/* User actions section */
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px; /* Using gap for spacing */
+}
+
+/* Cart icon styling */
+.cart-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 100%;
+}
+
+.cart-icon {
+  height: 20px;
+  width: 20px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.cart-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #007bff; /* Blue accent color */
+  color: #f9f9f9; /* White text */
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 500;
+  transform: translate(50%, -50%);
+}
+
+/* User icon styling */
+.user-icon {
+  height: 20px;
+  width: 20px;
+  opacity: 0.7;
+}
+
+/* User icon button for non-authenticated users */
+.user-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: opacity 0.2s ease;
+  height: 40px;
+  width: 40px;
+  
+  &:hover {
+    background-color: transparent;
+    opacity: 1;
+  }
+}
+
+/* User avatar */
+.user-avatar-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #007bff; /* Blue accent color */
+  color: #f9f9f9; /* White text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* User menu styling */
+.user-menu-header {
+  min-width: 200px;
+  background-color: #f8f9fa; /* Very light gray background */
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 50px; /* Fixed height instead of padding */
+}
+
+.user-menu-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: #333333;
+}
+
+.user-menu-email {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* Custom menu divider */
+.menu-divider {
+  height: 1px;
+  background-color: #eeeeee; /* Light divider color */
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  
+  .user-actions {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    width: calc(100% - 32px);
+  }
+  
+  .app-logo {
+    height: 20px;
+  }
+  
+  .cart-icon {
+    height: 18px;
+    width: 18px;
+  }
+  
+  .cart-count {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+  }
+  
+  .user-icon {
+    height: 18px;
+    width: 18px;
+  }
+  
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}

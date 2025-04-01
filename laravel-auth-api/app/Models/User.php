@@ -37,6 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'verification_code_expires_at',
         'status',
         'pending_until',
+        'role',
     ];
 
     /**
@@ -69,6 +70,26 @@ class User extends Authenticatable implements MustVerifyEmail
             'verification_code_expires_at' => 'datetime',
             'pending_until' => 'datetime',
         ];
+    }
+
+    /**
+     * Check if the user is an admin.
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if the user is a regular user.
+     *
+     * @return bool
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
     }
 
     /**

@@ -1,81 +1,99 @@
+/* Use flexbox for the entire component layout */
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .mfa-verify-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f5f5f5;
-}
-
-.mfa-verify-card {
+  flex-direction: column;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  gap: 1rem;
 }
 
-mat-card-header {
-  margin-bottom: 20px;
-}
-
-mat-card-title {
+.verify-title {
   font-size: 24px;
-  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
 }
 
-mat-card-subtitle {
-  font-size: 16px;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.mfa-instructions {
-  margin-bottom: 24px;
-  
-  p {
-    margin-bottom: 8px;
-  }
-  
-  .recovery-format {
-    font-family: monospace;
-    color: #666;
-    font-size: 14px;
-  }
+.verify-subtitle {
+  color: #666;
+  line-height: 1.5;
 }
 
 .form-field {
-  margin-bottom: 20px;
-}
-
-.full-width {
+  margin-bottom: 1rem;
   width: 100%;
 }
 
-.form-actions {
-  margin-top: 20px;
-  margin-bottom: 20px;
+.code-inputs-wrapper {
+  display: flex;
+  justify-content: start;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.code-inputs-container {
+  display: flex;
+  justify-content: start;
+  gap: clamp(12.2px, 2%, 8px); /* Responsive gap */
+  width: auto; /* Only take up as much space as needed */
+}
+
+.code-input {
+  width: clamp(40px, 14%, 48px); /* Responsive width */
+  height: clamp(40px, 14%, 48px); /* Responsive height */
+  border-radius: 4px;
+  background-color: #e8e8e8;
+  border: 1px solid #f5f5f5;
+  color: #333;
+  font-size: clamp(16px, 5vw, 18px); /* Responsive font size */
+  text-align: center;
+  caret-color: #D97757;
+  
+  &:focus {
+    outline: none;
+    border-color: #D97757;
+    box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.3);
+  }
+  
+  &::placeholder {
+    color: #666;
+  }
+}
+
+.verify-button {
+  width: 100%;
+  
+  app-custom-button {
+    display: block;
+    width: 100%;
+  }
 }
 
 .recovery-toggle {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
 }
 
 .error-message {
   color: #f44336;
-  margin-top: 16px;
+  margin-top: 1rem;
   text-align: center;
 }
 
 .spinner-button {
   display: inline-block;
-  margin-right: 8px;
+  margin-right: 0.5rem;
   vertical-align: middle;
 }
 
 /* For the loading spinner */
-mat-spinner {
+.spinner {
   display: inline-block;
-  margin-right: 8px;
+  margin-right: 0.5rem;
 }
 
 /* Error styles */

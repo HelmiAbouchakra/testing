@@ -7,6 +7,7 @@ export interface User {
   provider?: string;
   provider_id?: string;
   mfa_enabled: boolean;
+  role?: string;
   created_at?: string;
   updated_at?: string;
 }

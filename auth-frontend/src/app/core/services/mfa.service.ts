@@ -109,10 +109,10 @@ export class MfaService {
    * @param recoveryCode The recovery code
    */
   verifyRecoveryCode(recoveryCode: string): Observable<MfaVerifyResponse> {
-    console.log('Verifying MFA recovery code with URL:', `${this.apiUrl}/v1/mfa/verify-recovery`);
+    console.log('Verifying MFA recovery code with URL:', `${this.apiUrl}/v1/mfa/verify`);
     return this.http.post<MfaVerifyResponse>(
-      `${this.apiUrl}/v1/mfa/verify-recovery`, 
-      { recovery_code: recoveryCode }, 
+      `${this.apiUrl}/v1/mfa/verify`, 
+      { code: recoveryCode }, 
       { 
         withCredentials: true,
         headers: new HttpHeaders({
@@ -134,7 +134,7 @@ export class MfaService {
             error: null
           });
         }
-        console.log('MFA recovery code verification successful, auth state updated');
+        console.log('Recovery code verification successful, auth state updated');
         
         // Force a refresh of the authentication state to ensure all cookies are properly set
         setTimeout(() => {

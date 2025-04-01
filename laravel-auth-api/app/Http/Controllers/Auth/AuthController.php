@@ -57,6 +57,9 @@ class AuthController extends Controller
             ]);
         }
 
+        // Make sure we're explicitly loading the role
+        $user->refresh();
+
         return response()->json([
             'message' => 'Login successful',
             'user' => $user
@@ -152,7 +155,42 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+        
+        // Log the user data for debugging
+        \Log::info('User data being returned:', [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role
+        ]);
+        
+        // Make sure the role is included in the response
+        return response()->json($user);
+    }
+    
+    /**
+     * Check the current user's role
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkRole(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'authenticated' => false,
+                'role' => null
+            ]);
+        }
+        
+        return response()->json([
+            'authenticated' => true,
+            'role' => $user->role,
+            'is_admin' => $user->isAdmin()
+        ]);
     }
 
     /**

@@ -1,55 +1,108 @@
-<div class="mfa-verify-container">
-  <mat-card class="mfa-verify-card">
-    <mat-card-header>
-      <mat-card-title>{{ isRecoveryMode ? 'Enter Recovery Code' : 'Two-Factor Authentication' }}</mat-card-title>
-      <mat-card-subtitle>
-        {{ isRecoveryMode ? 'Please enter one of your recovery codes' : 'Please enter the 6-digit code from your authenticator app' }}
-      </mat-card-subtitle>
-    </mat-card-header>
+<app-wrapper [width]="'400px'" [center]="true" [hasBackground]="true">
+  <div class="mfa-verify-container">
+    <h1 class="verify-title">{{ isRecoveryMode ? 'Enter Recovery Code' : 'Two-Factor Authentication' }}</h1>
+    <p class="verify-subtitle">
+      {{ isRecoveryMode ? 'Please enter one of your recovery codes' : 'Please enter the 6-digit code from your authenticator app' }}
+    </p>
     
-    <mat-card-content>
-      <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()">
-        <div class="form-field">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ isRecoveryMode ? 'Recovery Code' : 'Authentication Code' }}</mat-label>
-            <input 
-              matInput 
-              formControlName="code" 
-              [placeholder]="isRecoveryMode ? 'xxxx-xxxx-xxxx-xxxx' : '123456'"
-              autocomplete="off"
-              [type]="isRecoveryMode ? 'text' : 'number'"
-              maxlength="{{ isRecoveryMode ? 35 : 6 }}"
-            >
-            <mat-error *ngIf="f['code'].errors?.['required']">Code is required</mat-error>
-            <mat-error *ngIf="f['code'].errors?.['pattern']">
-              {{ isRecoveryMode ? 'Invalid recovery code format' : 'Code must be 6 digits' }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-        
-        <div class="form-actions">
-          <button 
-            mat-raised-button 
-            color="primary" 
-            type="submit" 
-            [disabled]="verifyForm.invalid || loading"
-            class="full-width"
+    <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()">
+      <!-- Regular input for recovery code -->
+      <div class="form-field" *ngIf="isRecoveryMode">
+        <app-custom-input
+          [placeholder]="'xxxx-xxxx-xxxx-xxxx'"
+          [type]="'text'"
+          [value]="verificationCode"
+          (valueChange)="onCodeChange($event)"
+        ></app-custom-input>
+      </div>
+      
+      <!-- Code inputs for authenticator code -->
+      <div class="code-inputs-wrapper" *ngIf="!isRecoveryMode">
+        <div class="code-inputs-container">
+          <input 
+            type="text" 
+            maxlength="1" 
+            class="code-input" 
+            #codeInput1
+            [value]="codeDigits[0]"
+            (input)="onDigitInput($event, 0, codeInput2)"
+            (keydown)="onKeyDown($event, 0, null, codeInput2)"
+            inputmode="numeric"
+            autocomplete="one-time-code"
           >
-            <mat-spinner *ngIf="loading" diameter="20" class="spinner-button"></mat-spinner>
-            <span *ngIf="!loading">Verify</span>
-          </button>
+          <input 
+            type="text" 
+            maxlength="1" 
+            class="code-input" 
+            #codeInput2
+            [value]="codeDigits[1]"
+            (input)="onDigitInput($event, 1, codeInput3)"
+            (keydown)="onKeyDown($event, 1, codeInput1, codeInput3)"
+            inputmode="numeric"
+          >
+          <input 
+            type="text" 
+            maxlength="1" 
+            class="code-input" 
+            #codeInput3
+            [value]="codeDigits[2]"
+            (input)="onDigitInput($event, 2, codeInput4)"
+            (keydown)="onKeyDown($event, 2, codeInput2, codeInput4)"
+            inputmode="numeric"
+          >
+          <input 
+            type="text" 
+            maxlength="1" 
+            class="code-input" 
+            #codeInput4
+            [value]="codeDigits[3]"
+            (input)="onDigitInput($event, 3, codeInput5)"
+            (keydown)="onKeyDown($event, 3, codeInput3, codeInput5)"
+            inputmode="numeric"
+          >
+          <input 
+            type="text" 
+            maxlength="1" 
+            class="code-input" 
+            #codeInput5
+            [value]="codeDigits[4]"
+            (input)="onDigitInput($event, 4, codeInput6)"
+            (keydown)="onKeyDown($event, 4, codeInput4, codeInput6)"
+            inputmode="numeric"
+          >
+          <input 
+            type="text" 
+            maxlength="1" 
+            class="code-input" 
+            #codeInput6
+            [value]="codeDigits[5]"
+            (input)="onDigitInput($event, 5, null)"
+            (keydown)="onKeyDown($event, 5, codeInput5, null)"
+            inputmode="numeric"
+          >
         </div>
-      </form>
-      
-      <div class="recovery-toggle">
-        <button mat-button type="button" (click)="toggleRecoveryMode()">
-          {{ isRecoveryMode ? 'Use authenticator code instead' : 'Use recovery code instead' }}
-        </button>
       </div>
       
-      <div *ngIf="error" class="error-message">
-        {{ error }}
+      <div class="verify-button">
+        <app-custom-button
+          [text]="'Verify'"
+          [backgroundColor]="'#D97757'"
+          [textColor]="'#fff'"
+          [type]="'submit'"
+          [disabled]="verifyForm.invalid || loading"
+          [loading]="loading"
+        ></app-custom-button>
       </div>
-    </mat-card-content>
-  </mat-card>
-</div>
+    </form>
+    
+    <div class="recovery-toggle">
+      <app-custom-button
+        [text]="isRecoveryMode ? 'Use authenticator code instead' : 'Use recovery code instead'"
+        [backgroundColor]="'transparent'"
+        [textColor]="'#8f8d85'"
+        [linkStyle]="true"
+        (buttonClick)="toggleRecoveryMode()"
+      ></app-custom-button>
+    </div>
+  </div>
+</app-wrapper>

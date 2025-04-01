@@ -1,0 +1,128 @@
+<app-wrapper [width]="'1200px'" [transparentBg]="false" [center]="true">
+  <div class="user-management-container">
+    <!-- Admin actions -->
+    <div class="admin-actions">
+      <h1>User Management</h1>
+      <app-custom-button
+        [text]="showAdminForm ? 'Cancel' : 'Create Admin User'"
+        [backgroundColor]="showAdminForm ? '#f5f5f5' : '#D97757'"
+        [textColor]="showAdminForm ? '#333333' : '#fff'"
+        [hoverColor]="showAdminForm ? '#e8e8e8' : '#C36B4E'"
+        (buttonClick)="toggleAdminForm()"
+      ></app-custom-button>
+    </div>
+
+    <!-- Admin creation form -->
+    <div class="admin-form" *ngIf="showAdminForm">
+      <h2>Create New Admin User</h2>
+      <form [formGroup]="adminForm">
+        <app-custom-input
+          type="text"
+          placeholder="Enter admin name"
+          [value]="name"
+          (valueChange)="onNameChange($event)"
+          [borderColor]="adminForm.get('name')?.invalid && adminForm.get('name')?.touched ? '#f44336' : '#ccc'"
+        ></app-custom-input>
+
+        <app-custom-input
+          type="email"
+          placeholder="Enter admin email"
+          [value]="email"
+          (valueChange)="onEmailChange($event)"
+          [borderColor]="adminForm.get('email')?.invalid && adminForm.get('email')?.touched ? '#f44336' : '#ccc'"
+        ></app-custom-input>
+
+        <app-custom-input
+          type="password"
+          placeholder="Enter admin password"
+          [value]="password"
+          (valueChange)="onPasswordChange($event)"
+          [borderColor]="adminForm.get('password')?.invalid && adminForm.get('password')?.touched ? '#f44336' : '#ccc'"
+        ></app-custom-input>
+
+        <app-custom-input
+          type="password"
+          placeholder="Confirm admin password"
+          [value]="password_confirmation"
+          (valueChange)="onPasswordConfirmationChange($event)"
+          [borderColor]="(adminForm.get('password_confirmation')?.invalid && adminForm.get('password_confirmation')?.touched) || 
+                        (adminForm.errors?.['passwordMismatch'] && adminForm.touched) ? '#f44336' : '#ccc'"
+        ></app-custom-input>
+
+        <app-custom-button
+          [text]="loading ? 'Creating...' : 'Create Admin'"
+          [backgroundColor]="'#D97757'"
+          [textColor]="'#fff'"
+          [hoverColor]="'#C36B4E'"
+          [disabled]="adminForm.invalid || loading"
+          [loading]="loading"
+          (buttonClick)="createAdmin()"
+        ></app-custom-button>
+      </form>
+    </div>
+
+    <!-- Users table -->
+    <div class="users-table-container">
+      <div class="loading-indicator" *ngIf="loading && !users.length">
+        <p>Loading users...</p>
+      </div>
+
+      <table class="users-table" *ngIf="users.length">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Verified</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="role-badge" [ngClass]="user.role === 'admin' ? 'admin-role' : 'user-role'">
+                {{ user.role || 'user' }}
+              </span>
+            </td>
+            <td>{{ user.email_verified_at ? 'Yes' : 'No' }}</td>
+            <td>{{ user.created_at | date:'short' }}</td>
+            <td class="actions-cell">
+              <button 
+                class="role-toggle-btn" 
+                *ngIf="user.role !== 'admin'"
+                (click)="updateRole(user.id, 'admin')"
+                [disabled]="loading"
+              >
+                Make Admin
+              </button>
+              <button 
+                class="role-toggle-btn" 
+                *ngIf="user.role === 'admin'"
+                (click)="updateRole(user.id, 'user')"
+                [disabled]="loading"
+              >
+                Make User
+              </button>
+              <button 
+                class="delete-btn" 
+                (click)="deleteUser(user.id)"
+                [disabled]="loading"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="no-users" *ngIf="!loading && !users.length">
+        <p>No users found.</p>
+      </div>
+    </div>
+  </div>
+</app-wrapper>

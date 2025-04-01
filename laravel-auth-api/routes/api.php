@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\MfaController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\CsrfController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Admin\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,7 @@ Route::prefix('v1')->group(function () {
         
         Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
         Route::get('user', [AuthController::class, 'user'])->middleware('auth:sanctum');
+        Route::get('check-role', [AuthController::class, 'checkRole'])->middleware('auth:sanctum');
         Route::post('email/verification-notification', [VerificationController::class, 'resend'])
             ->middleware(['auth:sanctum', 'throttle:6,1']);
         Route::post('email/verify', [VerificationController::class, 'verify'])
@@ -97,4 +99,12 @@ Route::middleware(['auth:sanctum', 'require_mfa'])->prefix('v1/secure')->group(f
     // Routes that require MFA can be placed here
     // For example:
     // Route::get('/sensitive-data', 'SensitiveDataController@index');
+});
+
+// Admin routes - only accessible to admin users
+Route::middleware(['auth:sanctum', 'admin'])->prefix('v1/admin')->group(function () {
+    Route::get('/users', [AdminController::class, 'getUsers']);
+    Route::post('/users/admin', [AdminController::class, 'createAdmin']);
+    Route::put('/users/{id}/role', [AdminController::class, 'updateRole']);
+    Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
 });

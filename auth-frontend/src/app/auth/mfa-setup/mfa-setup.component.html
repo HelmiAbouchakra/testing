@@ -1,120 +1,136 @@
-<div class="mfa-setup-container">
-  <mat-card class="mfa-setup-card">
-    <mat-card-header>
-      <mat-card-title>Two-Factor Authentication Setup</mat-card-title>
-    </mat-card-header>
+<app-wrapper [width]="'400px'" [center]="true" [hasBackground]="true">
+  <div class="mfa-setup-container">
+    <h1 class="setup-title">Two-Factor Authentication Setup</h1>
     
-    <mat-card-content>
-      <!-- Loading spinner -->
-      <div class="loading-container" *ngIf="loading">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p>Loading...</p>
-      </div>
+    <!-- Step 1: Password and QR Code -->
+    <div class="setup-step" *ngIf="setupStep === 1">
+      <p class="step-description">Enter your password and scan the QR code with your authenticator app.</p>
       
-      <!-- Error message -->
-      <div class="error-container" *ngIf="error">
-        <mat-error>{{ error }}</mat-error>
-      </div>
-      
-      <!-- Step 1: Password and QR Code -->
-      <div class="setup-step" *ngIf="setupStep === 1 && !loading">
-        <h2>Step 1: Scan QR Code</h2>
-        <p>Enter your password and scan the QR code with your authenticator app.</p>
+      <form [formGroup]="passwordForm" (ngSubmit)="initiateSetup()">
+        <div class="form-field">
+          <app-custom-input
+            [placeholder]="'Your Password'"
+            [type]="'password'"
+            [value]="password"
+            (valueChange)="onPasswordChange($event)"
+          ></app-custom-input>
+        </div>
         
-        <form [formGroup]="passwordForm" (ngSubmit)="initiateSetup()">
-          <div class="form-field">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Your Password</mat-label>
-              <input matInput type="password" formControlName="password" required>
-              <mat-error *ngIf="p['password'].errors?.['required']">Password is required</mat-error>
-            </mat-form-field>
-          </div>
+        <app-custom-button
+          [text]="'Generate QR Code'"
+          [backgroundColor]="'#D97757'"
+          [textColor]="'#fff'"
+          [type]="'submit'"
+          [disabled]="passwordForm.invalid || loading"
+          [loading]="loading"
+        ></app-custom-button>
+      </form>
+      
+      <div class="qr-code-container" *ngIf="qrCodeData">
+        <div [innerHTML]="qrCodeData"></div>
+      </div>
+      
+      <div class="secret-key-container" *ngIf="secret">
+        <p>Or manually enter this secret key:</p>
+        <div class="secret-key">
+          <code>{{ secret }}</code>
+          <app-custom-button
+            [text]="'Copy'"
+            [backgroundColor]="'transparent'"
+            [textColor]="'#D97757'"
+            [linkStyle]="true"
+            (buttonClick)="copySecret()"
+          ></app-custom-button>
+        </div>
+      </div>
+      
+      <div class="step-actions" *ngIf="qrCodeData">
+        <app-custom-button
+          [text]="'Next'"
+          [backgroundColor]="'#D97757'"
+          [textColor]="'#fff'"
+          (buttonClick)="nextStep()"
+        ></app-custom-button>
+      </div>
+    </div>
+    
+    <!-- Step 2: Verification -->
+    <div class="setup-step" *ngIf="setupStep === 2">
+      <p class="step-description">Enter the 6-digit code from your authenticator app to verify setup.</p>
+      
+      <form [formGroup]="setupForm" (ngSubmit)="verifyAndEnable()">
+        <div class="form-field">
+          <app-custom-input
+            [placeholder]="'Enter 6-digit code'"
+            [type]="'text'"
+            [value]="verificationCode"
+            (valueChange)="onCodeChange($event)"
+          ></app-custom-input>
+        </div>
+        
+        <div class="form-actions">
+          <app-custom-button
+            [text]="'Back'"
+            [backgroundColor]="'transparent'"
+            [textColor]="'#8f8d85'"
+            [linkStyle]="true"
+            [iconSrc]="'assets/images/left-arrow.svg'"
+            [iconPosition]="'left'"
+            (buttonClick)="previousStep()"
+          ></app-custom-button>
           
-          <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit" [disabled]="passwordForm.invalid || loading">
-              <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-              <span *ngIf="!loading">Generate QR Code</span>
-            </button>
-          </div>
-        </form>
-        
-        <div class="qr-code-container" *ngIf="qrCodeData">
-          <div [innerHTML]="qrCodeData"></div>
+          <app-custom-button
+            [text]="'Verify & Enable'"
+            [backgroundColor]="'#D97757'"
+            [textColor]="'#fff'"
+            [type]="'submit'"
+            [disabled]="setupForm.invalid || loading"
+            [loading]="loading"
+          ></app-custom-button>
         </div>
-        
-        <div class="secret-key-container" *ngIf="secret">
-          <p>Or manually enter this secret key:</p>
-          <div class="secret-key">
-            <code>{{ secret }}</code>
-            <button mat-icon-button color="primary" (click)="copySecret()" matTooltip="Copy to clipboard">
-              <mat-icon>content_copy</mat-icon>
-            </button>
-          </div>
-        </div>
-        
-        <div class="step-actions" *ngIf="qrCodeData">
-          <button mat-raised-button color="primary" (click)="nextStep()">Next</button>
-        </div>
+      </form>
+    </div>
+    
+    <!-- Step 3: Recovery Codes -->
+    <div class="setup-step" *ngIf="setupStep === 3">
+      <div class="important-note">
+        <span class="warning-icon">⚠️</span>
+        <span>IMPORTANT: Save these recovery codes in a secure location. They will only be shown once!</span>
+      </div>
+      <p class="step-description">If you lose access to your authenticator app, you can use one of these recovery codes to sign in.</p>
+      
+      <div class="recovery-codes-container">
+        <ul class="recovery-codes-list">
+          <li *ngFor="let code of recoveryCodes" class="recovery-code">{{ code }}</li>
+        </ul>
       </div>
       
-      <!-- Step 2: Verification -->
-      <div class="setup-step" *ngIf="setupStep === 2 && !loading">
-        <h2>Step 2: Verify Code</h2>
-        <p>Enter the 6-digit code from your authenticator app to verify setup.</p>
+      <div class="recovery-actions">
+        <app-custom-button
+          [text]="'Copy Codes'"
+          [backgroundColor]="'transparent'"
+          [textColor]="'#D97757'"
+          [linkStyle]="true"
+          (buttonClick)="copyRecoveryCodes()"
+        ></app-custom-button>
         
-        <form [formGroup]="setupForm" (ngSubmit)="verifyAndEnable()">
-          <div class="form-field">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Authentication Code</mat-label>
-              <input matInput formControlName="code" 
-                    placeholder="Enter 6-digit code" 
-                    autocomplete="off"
-                    required>
-              <mat-error *ngIf="f['code'].errors?.['required']">Code is required</mat-error>
-              <mat-error *ngIf="f['code'].errors?.['pattern']">
-                Code must be 6 digits
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-actions">
-            <button mat-button (click)="previousStep()">Back</button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="setupForm.invalid || loading">
-              <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-              <span *ngIf="!loading">Verify & Enable</span>
-            </button>
-          </div>
-        </form>
+        <app-custom-button
+          [text]="'Download Codes'"
+          [backgroundColor]="'transparent'"
+          [textColor]="'#D97757'"
+          [linkStyle]="true"
+          (buttonClick)="downloadRecoveryCodes()"
+        ></app-custom-button>
       </div>
       
-      <!-- Step 3: Recovery Codes -->
-      <div class="setup-step" *ngIf="setupStep === 3 && !loading">
-        <h2>Step 3: Save Recovery Codes</h2>
-        <p class="important-note">
-          <mat-icon color="warn">warning</mat-icon>
-          <span>IMPORTANT: Save these recovery codes in a secure location. They will only be shown once!</span>
-        </p>
-        <p>If you lose access to your authenticator app, you can use one of these recovery codes to sign in.</p>
-        
-        <div class="recovery-codes-container">
-          <mat-list>
-            <mat-list-item *ngFor="let code of recoveryCodes">{{ code }}</mat-list-item>
-          </mat-list>
-        </div>
-        
-        <div class="recovery-actions">
-          <button mat-stroked-button (click)="copyRecoveryCodes()">
-            <mat-icon>content_copy</mat-icon> Copy Codes
-          </button>
-          <button mat-stroked-button (click)="downloadRecoveryCodes()">
-            <mat-icon>download</mat-icon> Download Codes
-          </button>
-        </div>
-        
-        <div class="step-actions">
-          <button mat-raised-button color="primary" (click)="finishSetup()">Finish Setup</button>
-        </div>
+      <div class="step-actions">
+        <app-custom-button
+          [text]="'Finish Setup'"
+          [backgroundColor]="'#D97757'"
+          [textColor]="'#fff'"
+          (buttonClick)="finishSetup()"
+        ></app-custom-button>
       </div>
-    </mat-card-content>
-  </mat-card>
-</div>
+    </div>
+  </div>
+</app-wrapper>

@@ -1,93 +1,23 @@
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.app-title {
-  font-size: 1.5rem;
-  font-weight: 500;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.welcome-text {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-/* Email verification alert styling */
-.email-verification-alert {
-  background-color: #fff3e0;
-  padding: 12px 24px;
-  border-left: 4px solid #ff9800;
-  margin-bottom: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.alert-content {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.alert-content mat-icon {
-  color: #ff9800;
-}
-
-.verification-message {
-  margin-top: 8px;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.verification-message.success {
-  background-color: #e8f5e9;
-  color: #388e3c;
-}
-
-.verification-message.error {
-  background-color: #ffebee;
-  color: #d32f2f;
+  min-height: calc(100vh - 64px);
+  padding-top: 92px; /* Account for fixed navbar (60px height + 16px padding top + 16px padding bottom) */
 }
 
 .dashboard-content {
-  padding: 24px;
-  flex: 1;
-  background-color: #f5f5f5;
-  overflow: auto;
-}
-
-.dashboard-card {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 }
 
-@media (max-width: 600px) {
-  .welcome-text {
-    display: none;
-  }
-  
-  .alert-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+h1 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
 }

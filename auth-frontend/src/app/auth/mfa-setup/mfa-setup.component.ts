@@ -2,18 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MfaService } from '../../core/services/mfa.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatListModule } from '@angular/material/list';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ToastrService } from 'ngx-toastr';
+
+// Custom Components
+import { WrapperComponent } from '../../components/wrapper/wrapper.component';
+import { CustomInputComponent } from '../../components/custom-input/custom-input.component';
+import { CustomButtonComponent } from '../../components/custom-button/custom-button.component';
+
+// Interfaces
+export interface MfaSetupData {
+  secret: string;
+  qr_code: string;
+  recovery_codes: string[];
+}
 
 @Component({
   selector: 'app-mfa-setup',
@@ -23,14 +27,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatListModule,
-    MatTooltipModule
+    WrapperComponent,
+    CustomInputComponent,
+    CustomButtonComponent
   ]
 })
 export class MfaSetupComponent implements OnInit {
@@ -43,14 +42,17 @@ export class MfaSetupComponent implements OnInit {
   qrCodeData: SafeHtml | null = null;
   secret: string = '';
   recoveryCodes: string[] = [];
-  error: string | null = null;
+  
+  // Fields for custom input binding
+  password: string = '';
+  verificationCode: string = '';
 
   constructor(
     private formBuilder: FormBuilder,
     private mfaService: MfaService,
     private router: Router,
-    private snackBar: MatSnackBar,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
@@ -69,61 +71,71 @@ export class MfaSetupComponent implements OnInit {
   get f() { return this.setupForm.controls; }
   get p() { return this.passwordForm.controls; }
 
+  // Update form values when custom inputs change
+  onPasswordChange(value: string): void {
+    this.password = value;
+    this.p['password'].setValue(value);
+  }
+
+  onCodeChange(value: string): void {
+    this.verificationCode = value;
+    this.f['code'].setValue(value);
+  }
+
   initiateSetup(): void {
     if (this.passwordForm.invalid) {
+      // Show validation errors via toastr
+      if (this.p['password'].errors?.['required']) {
+        this.toastr.error('Password is required');
+      }
       return;
     }
 
     this.loading = true;
-    this.error = null;
     
     const password = this.passwordForm.get('password')?.value;
 
     this.mfaService.setupMfa(password).subscribe({
-      next: (response) => {
+      next: (response: MfaSetupData) => {
         // Safely render the SVG QR code
         this.qrCodeData = this.sanitizer.bypassSecurityTrustHtml(response.qr_code);
         this.secret = response.secret;
         this.loading = false;
       },
       error: (error: HttpErrorResponse) => {
-        this.error = error.message || 'Failed to set up MFA';
         this.loading = false;
-        this.snackBar.open(this.error || 'Failed to set up MFA', 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        const errorMessage = error.error?.message || 'Failed to set up MFA';
+        this.toastr.error(errorMessage);
       }
     });
   }
 
   verifyAndEnable(): void {
     if (this.setupForm.invalid) {
+      // Show validation errors via toastr
+      if (this.f['code'].errors?.['required']) {
+        this.toastr.error('Verification code is required');
+      } else if (this.f['code'].errors?.['pattern']) {
+        this.toastr.error('Verification code must be 6 digits');
+      }
       return;
     }
 
     this.loading = true;
-    this.error = null;
 
     this.mfaService.enableMfa(this.f['code'].value).subscribe({
-      next: (response) => {
+      next: (response: MfaSetupData) => {
         this.loading = false;
         this.setupStep = 3;
         this.setupComplete = true;
         this.recoveryCodes = response.recovery_codes || [];
         
-        this.snackBar.open('MFA has been successfully enabled!', 'Close', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.toastr.success('MFA has been successfully enabled!');
       },
       error: (error: HttpErrorResponse) => {
-        this.error = error.message || 'Failed to verify code';
         this.loading = false;
-        this.snackBar.open(this.error || 'Failed to verify code', 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        const errorMessage = error.error?.message || 'Failed to verify code';
+        this.toastr.error(errorMessage);
       }
     });
   }
@@ -143,23 +155,19 @@ export class MfaSetupComponent implements OnInit {
   }
 
   finishSetup(): void {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/auth/profile']);
   }
 
   copySecret(): void {
     navigator.clipboard.writeText(this.secret).then(() => {
-      this.snackBar.open('Secret copied to clipboard!', 'Close', {
-        duration: 2000
-      });
+      this.toastr.info('Secret copied to clipboard!');
     });
   }
 
   copyRecoveryCodes(): void {
     const codes = this.recoveryCodes.join('\n');
     navigator.clipboard.writeText(codes).then(() => {
-      this.snackBar.open('Recovery codes copied to clipboard!', 'Close', {
-        duration: 2000
-      });
+      this.toastr.info('Recovery codes copied to clipboard!');
     });
   }
 
@@ -174,5 +182,6 @@ export class MfaSetupComponent implements OnInit {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+    this.toastr.success('Recovery codes downloaded');
   }
 }

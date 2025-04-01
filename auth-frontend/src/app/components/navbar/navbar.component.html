@@ -1,0 +1,107 @@
+<nav class="navbar-sapcing">
+<div class="navbar">
+  <div class="navbar-container">
+    <!-- Logo section -->
+    <div class="logo-section">
+      <a routerLink="/" class="logo-link">
+        <img src="assets/images/app-logo-simple.svg" alt="App Logo" class="app-logo">
+      </a>
+    </div>
+
+    <!-- Navigation links section -->
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
+      
+      <!-- Products dropdown -->
+      <div class="dropdown">
+        <button class="dropdown-button">
+          Products <img src="assets/images/arrow-down.svg" alt="Expand" class="dropdown-arrow">
+        </button>
+        <div class="dropdown-menu">
+          <a routerLink="/products/category/electronics" class="dropdown-item">
+            <img src="assets/images/electronics-icon.svg" alt="Electronics" class="dropdown-icon">
+            <span>Electronics</span>
+          </a>
+          <a routerLink="/products/category/clothing" class="dropdown-item">
+            <img src="assets/images/clothing-icon.svg" alt="Clothing" class="dropdown-icon">
+            <span>Clothing</span>
+          </a>
+          <a routerLink="/products/category/home" class="dropdown-item">
+            <img src="assets/images/home-icon.svg" alt="Home & Garden" class="dropdown-icon">
+            <span>Home & Garden</span>
+          </a>
+          <a routerLink="/products/all" class="dropdown-item">
+            <img src="assets/images/all-products-icon.svg" alt="All Products" class="dropdown-icon">
+            <span>All Products</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Admin dropdown (only for admin users) -->
+      <div class="dropdown" *ngIf="isAuthenticated && isAdmin">
+        <button class="dropdown-button">
+          Admin <img src="assets/images/arrow-down.svg" alt="Expand" class="dropdown-arrow">
+        </button>
+        <div class="dropdown-menu">
+          <a routerLink="/admin/dashboard" class="dropdown-item">Dashboard</a>
+          <a routerLink="/admin/products" class="dropdown-item">Manage Products</a>
+          <a routerLink="/admin/orders" class="dropdown-item">Manage Orders</a>
+          <a routerLink="/admin/users" class="dropdown-item">Manage Users</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- User actions section -->
+    <div class="user-actions">
+      <!-- Cart icon with count -->
+      <a routerLink="/cart" class="cart-icon-container">
+        <img src="assets/images/cart-icon.svg" alt="Cart" class="cart-icon">
+        <span *ngIf="cartItemCount > 0" class="cart-count">{{ cartItemCount }}</span>
+      </a>
+      
+      <!-- User profile section for authenticated users -->
+      <div class="dropdown" *ngIf="isAuthenticated && user">
+        <button class="user-avatar-button">
+          <div class="user-avatar">{{ getUserInitial() }}</div>
+        </button>
+        <div class="dropdown-menu user-dropdown-menu">
+          <div class="user-menu-header">
+            <div class="user-menu-name">{{ user.name }}</div>
+            <div class="user-menu-email">{{ user.email }}</div>
+          </div>
+          <div class="menu-divider"></div>
+          <a routerLink="/profile" class="dropdown-item">
+            <img src="assets/images/profile-icon.svg" alt="Profile" class="dropdown-icon">
+            <span>Profile</span>
+          </a>
+          <a routerLink="/orders" class="dropdown-item">
+            <img src="assets/images/orders-icon.svg" alt="My Orders" class="dropdown-icon">
+            <span>My Orders</span>
+          </a>
+          <button (click)="logout()" class="dropdown-item">
+            <img src="assets/images/logout-icon.svg" alt="Logout" class="dropdown-icon">
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Login dropdown for non-authenticated users -->
+      <div class="dropdown" *ngIf="!isAuthenticated">
+        <button class="user-icon-button">
+          <img src="assets/images/user-icon.svg" alt="User" class="user-icon">
+        </button>
+        <div class="dropdown-menu user-dropdown-menu">
+          <button (click)="navigateToLogin()" class="dropdown-item">
+            <img src="assets/images/login-icon.svg" alt="Login" class="dropdown-icon">
+            <span>Login</span>
+          </button>
+          <button (click)="navigateToRegister()" class="dropdown-item">
+            <img src="assets/images/register-icon.svg" alt="Register" class="dropdown-icon">
+            <span>Register</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</nav>
